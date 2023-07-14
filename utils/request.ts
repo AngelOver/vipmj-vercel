@@ -10,7 +10,9 @@ const fetch = (url: string, options?: any): Promise<any>  => {
         useFetch(reqUrl, { ...options, headers }).then(({ data,error }: any) => {
 
             if (!data._rawValue) {
-                if(error.value.status==500){
+                if(!error.value){
+                    //Message.error("服务器错误")
+                }else if(error.value.status==500){
                     Message.error("服务器错误")
                 }else{
                     Message.error(error.value.data.message)

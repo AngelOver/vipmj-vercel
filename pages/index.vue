@@ -1633,6 +1633,13 @@ const submitForm = async () => {
             Message.error('禁止发送违禁词')
             return false
         }
+        if (res.status == 502) {
+          send_loading.value = false
+          me_message.value[me_message.value.length - 1].message = '网络连接遇到了一些问题，请重试'
+          Message.error('网络连接遇到了一些问题，请重试')
+          return false
+        }
+
         let reply_in = false;
         const stream = res.body?.getReader();
         const onData = ({value}: { value: Uint8Array }) => {
@@ -1789,6 +1796,12 @@ const submitFormNoLogin = async () => {
         me_message.value[me_message.value.length - 1].message = '禁止发送违禁词'
         Message.error('禁止发送违禁词')
         return false
+    }
+    if (res.status == 502) {
+      send_loading.value = false
+      me_message.value[me_message.value.length - 1].message = '网络连接遇到了一些问题，请重试'
+      Message.error('网络连接遇到了一些问题，请重试')
+      return false
     }
     const stream = res.body?.getReader();
     const onData = ({value}: { value: Uint8Array }) => {

@@ -352,7 +352,7 @@ const get_user_balance = () => {
         user_balance.value = res._rawValue.data
     })
 }
-get_user_balance()
+//get_user_balance()
 const change_drawer = () => {
     drawer.value = true
 }

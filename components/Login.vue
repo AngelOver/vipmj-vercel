@@ -26,43 +26,43 @@
                     <img src="@/assets/images/safe_login.png" alt="" class="w-28 m-auto mb-2">
 
                     <p class="text-center mb-6">登录自主用户，开始聊天</p>
-                    <a-form  ref="ruleFormRefLogin" :model="ruleFormLogin" class="demo-ruleForm"
-                        status-icon @submit="submitFormLogin">
-                        <a-form-item :hide-label=true field="email"
-                                     :rules="[{required:true,message:'邮箱或手机号不得为空'}]">
-                                <a-input  v-model="ruleFormLogin.email"
-                                    placeholder="输入你的邮箱/手机号">
-                                    <template #prefix>
-                                        <icon-user />
-                                    </template>
-                                </a-input>
-                        </a-form-item>
-                        <a-form-item :hide-label=true field="password"
-                                     :rules="[{required:true,message:'密码不得为空'},
-                                     {minLength:6,message:'必须输入大于6个字符'}]"
-                        >
-                                <a-input-password   v-model="ruleFormLogin.password"
-                                    placeholder="输入你的密码">
-                                    <template #prefix>
-                                        <icon-lock />
-                                    </template>
-                                </a-input-password>
-                        </a-form-item>
-                        <div class="form-group d-flex justify-content-between mb-2">
-                            <NuxtLink class="link" href="/users/reset">忘记密码</NuxtLink>
-                        </div>
-                        <a-button :loading="login_loading"  type="primary"
-                                  html-type="submit" class="login mb-2">
-                            登录
-                        </a-button>
-                    </a-form>
+<!--                    <a-form  ref="ruleFormRefLogin" :model="ruleFormLogin" class="demo-ruleForm"-->
+<!--                        status-icon @submit="submitFormLogin">-->
+<!--                        <a-form-item :hide-label=true field="email"-->
+<!--                                     :rules="[{required:true,message:'邮箱或手机号不得为空'}]">-->
+<!--                                <a-input  v-model="ruleFormLogin.email"-->
+<!--                                    placeholder="输入你的邮箱/手机号">-->
+<!--                                    <template #prefix>-->
+<!--                                        <icon-user />-->
+<!--                                    </template>-->
+<!--                                </a-input>-->
+<!--                        </a-form-item>-->
+<!--                        <a-form-item :hide-label=true field="password"-->
+<!--                                     :rules="[{required:true,message:'密码不得为空'},-->
+<!--                                     {minLength:6,message:'必须输入大于6个字符'}]"-->
+<!--                        >-->
+<!--                                <a-input-password   v-model="ruleFormLogin.password"-->
+<!--                                    placeholder="输入你的密码">-->
+<!--                                    <template #prefix>-->
+<!--                                        <icon-lock />-->
+<!--                                    </template>-->
+<!--                                </a-input-password>-->
+<!--                        </a-form-item>-->
+<!--                        <div class="form-group d-flex justify-content-between mb-2">-->
+<!--                            <NuxtLink class="link" href="/users/reset">忘记密码</NuxtLink>-->
+<!--                        </div>-->
+<!--                        <a-button :loading="login_loading"  type="primary"-->
+<!--                                  html-type="submit" class="login mb-2">-->
+<!--                            登录-->
+<!--                        </a-button>-->
+<!--                    </a-form>-->
                     <div class="mt-6" v-if="counter.setting.three_login_open=='1'">
                         <div class="relative">
                             <div class="absolute inset-0 flex items-center">
                                 <div class="w-full border-t border-gray-300" />
                             </div>
                             <div class="relative flex justify-center text-sm">
-                                <span class="bg-white px-2 text-gray-500">第三方登录</span>
+                                <span class="bg-white px-2 text-gray-500">微信授权登录</span>
                             </div>
                         </div>
 
@@ -80,10 +80,10 @@
                         </div>
                     </div>
 
-                    <p class="text-center mb-0">还没有账户？
-                        <span class="link cursor-pointer" @click="go_regs()">注册一个</span>
-                        .
-                    </p>
+<!--                    <p class="text-center mb-0">还没有账户？-->
+<!--                        <span class="link cursor-pointer" @click="go_regs()">注册一个</span>-->
+<!--                        .-->
+<!--                    </p>-->
                 </div>
             </div>
             <!--wechat_login-->
@@ -254,7 +254,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import {onMounted, reactive, ref} from 'vue'
 import {
     IconUser,
     IconLock,
@@ -298,6 +298,7 @@ const login_dialog = computed({
 const handleCancel = () => {
     login_dialog.value = false
 }
+
 
 const email = ref('')
 const password = ref('')
@@ -347,6 +348,8 @@ const submitFormLogin = async ({values, errors}) => {
 const { public: { baseUrl } } = useRuntimeConfig()
 const wechat_id = ref()
 const wx_login_is = ref(false)
+
+let timer: string | number | NodeJS.Timer | undefined ;
 const wechat_login= ()=>{
     is_login_card.value = false
     wx_login_is.value = true
@@ -356,7 +359,7 @@ const wechat_login= ()=>{
         wx_ewm.value = res._rawValue.data
         wechat_id.value = res._rawValue.id
         // 轮询是否已经关注登录
-        let timer = setInterval(() => {
+         timer = setInterval(() => {
             wechat_login_status({
                 id:wechat_id.value
             }).then((res: any) => {
@@ -371,11 +374,17 @@ const wechat_login= ()=>{
             }).catch((err: any) => {
                 clearInterval(timer)
             })
-        }, 3000)
+        }, 5000)
     }).catch((err: any) => {
         Message.error(err);
+        clearInterval(timer);
     })
 }
+
+// onMounted(() => {
+//   console.log("111")
+//   weixin_login()
+// })
 const reg_way = ref(counter.setting.register_way?counter.setting.register_way:'1')
 
 // register send
@@ -521,6 +530,8 @@ const send_code_text = ref('发送验证码')
 const send_wait = ref(false)
 const activeName = reg_way === '1' ? 'first' : (reg_way == '2' ? 'second' : 'first')
 
+
+
 const send_code = () => {
     if (ruleForm.email == '') {
         Message.error('请填写邮箱')
@@ -582,6 +593,8 @@ const send_p_code = () => {
         console.log(err)
     })
 }
+
+
 </script>
 
 <style>
