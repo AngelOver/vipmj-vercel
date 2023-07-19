@@ -489,7 +489,9 @@ const renderMarkdown = (markdown: any) => {
     }).use(markdownItKatex).render(markdown)
 }
 const token = useCookie('token')
-
+//definePageMeta({
+//middleware: ['mustlogin']
+//})
 const counter = useCounter()
 const actions = counter.setting.APP_URL + '/api/upload_pdf'
 useHead({
@@ -638,7 +640,9 @@ const picSuccess = (currentFile) => {
         Message.error('上传失败!')
         return
     }
+    Message.clear()
     Message.success('上传成功!')
+
     imageUrl.value = currentFile.response.data;
     pdf_size.value = currentFile.response.size;
     pdf_name.value = currentFile.response.name;
@@ -662,6 +666,7 @@ const beforeUpload = (file) => {
         Message.error('请先登录!')
         return false
     }
+    Message.loading('上传中...')
     return true
 };
 const deletePic = () => {
@@ -866,6 +871,10 @@ const generatePDF = () => {
         Message.error('请先上传PDF文件!')
         return
     }
+    Message.loading({
+        content: '解析中...',
+        duration: 1000000,
+    })
     generate_load.value = true
     gptpdf_generate({
         pdf_url: imageUrl.value,
@@ -874,8 +883,11 @@ const generatePDF = () => {
         get_now_pdf_message()
         generate_load.value = false
         get_left_list()
+        Message.clear()
+        Message.success('解析成功!')
     }).catch((err:any) => {
         console.log(err)
+        Message.clear()
         generate_load.value = false
     })
 }

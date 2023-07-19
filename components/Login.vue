@@ -62,7 +62,7 @@
                                 <div class="w-full border-t border-gray-300" />
                             </div>
                             <div class="relative flex justify-center text-sm">
-                                <span class="bg-white px-2 text-gray-500">微信授权登录</span>
+                                <span class="bg-white px-2 text-gray-500">第三方登录</span>
                             </div>
                         </div>
 
@@ -80,10 +80,10 @@
                         </div>
                     </div>
 
-<!--                    <p class="text-center mb-0">还没有账户？-->
-<!--                        <span class="link cursor-pointer" @click="go_regs()">注册一个</span>-->
-<!--                        .-->
-<!--                    </p>-->
+                    <p class="text-center mb-0">还没有账户？
+                        <span class="link cursor-pointer" @click="go_regs()">注册一个</span>
+                        .
+                    </p>
                 </div>
             </div>
             <!--wechat_login-->
@@ -254,7 +254,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, reactive, ref} from 'vue'
+import { reactive, ref } from 'vue'
 import {
     IconUser,
     IconLock,
@@ -277,6 +277,7 @@ const go_regs = () => {
 }
 const go_login = () => {
     wx_ewm.value = ''
+    wx_login_is.value = false
     is_login_card.value = true
 }
 
@@ -298,7 +299,6 @@ const login_dialog = computed({
 const handleCancel = () => {
     login_dialog.value = false
 }
-
 
 const email = ref('')
 const password = ref('')
@@ -348,8 +348,6 @@ const submitFormLogin = async ({values, errors}) => {
 const { public: { baseUrl } } = useRuntimeConfig()
 const wechat_id = ref()
 const wx_login_is = ref(false)
-
-let timer: string | number | NodeJS.Timer | undefined ;
 const wechat_login= ()=>{
     is_login_card.value = false
     wx_login_is.value = true
@@ -359,7 +357,7 @@ const wechat_login= ()=>{
         wx_ewm.value = res._rawValue.data
         wechat_id.value = res._rawValue.id
         // 轮询是否已经关注登录
-         timer = setInterval(() => {
+        let timer = setInterval(() => {
             wechat_login_status({
                 id:wechat_id.value
             }).then((res: any) => {
@@ -377,14 +375,8 @@ const wechat_login= ()=>{
         }, 5000)
     }).catch((err: any) => {
         Message.error(err);
-        clearInterval(timer);
     })
 }
-
-// onMounted(() => {
-//   console.log("111")
-//   weixin_login()
-// })
 const reg_way = ref(counter.setting.register_way?counter.setting.register_way:'1')
 
 // register send
@@ -530,8 +522,6 @@ const send_code_text = ref('发送验证码')
 const send_wait = ref(false)
 const activeName = reg_way === '1' ? 'first' : (reg_way == '2' ? 'second' : 'first')
 
-
-
 const send_code = () => {
     if (ruleForm.email == '') {
         Message.error('请填写邮箱')
@@ -593,8 +583,6 @@ const send_p_code = () => {
         console.log(err)
     })
 }
-
-
 </script>
 
 <style>

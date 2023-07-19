@@ -325,3 +325,48 @@ export const rename_content = (params:any) => {
 export const delete_message = (params:any) => {
     return Http.post('api/delete_message',params)
 }
+
+export const draw_cate_f = () => {
+    return Http.post('api/draw_cate')
+}
+
+export const draw_cate_me = (params:any) => {
+    return Http.post('api/draw_cate_me',params)
+}
+export const draw_star = (params:any) => {
+    return Http.post('api/draw_star',params)
+}
+
+export const get_draw_like = (params:any) => {
+    return Http.post('api/get_draw_like',params)
+}
+
+export const check_order_status = (params:any) => {
+    return Http.post('api/check_order_status',params)
+}
+export const get_message_keda = (params:any) => {
+    return Http.post('api/get_message_keda',params)
+}
+
+export const fly_message = (params:any) => {
+    return Http.post('api/fly_message',params)
+}
+export const del_fly_msg = (params:any) => {
+    return Http.post('api/del_fly_msg',params)
+}
+
+export const del_all_fly = () => {
+    return Http.post('api/del_all_fly')
+}
+
+export const delete_message_fly = (params:any) => {
+    return Http.post('api/delete_message_fly',params)
+}
+
+export const get_carsoul_f = () => {
+    return Http.post('api/get_carsoul_f')
+}
+
+export const get_curse = () => {
+    return Http.post('api/get_curse')
+}

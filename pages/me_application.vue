@@ -129,6 +129,7 @@ const loadings = ref(false)
 const tabs = ref([])
 const counter = useCounter()
 const token  = useCookie('token')
+
 useHead({
     title: '我的收藏小应用 - '+counter.setting.title,
     meta: [

@@ -275,279 +275,245 @@
                     <client-only>
                         <div class="main-body mt-2">
 
-                        <h4 class="inline mr-2">AI绘图
+                            <h4 class="inline mr-2">AI绘图
 
-                        </h4>
-                        <a-tooltip  position="bottom">
-                            <template #content>
-                                <div class="left-panel-footer__spend-tip  text-white"><img
-                                    src="~/assets/images/jifen.png"
-                                    class="left-panel-footer__icon mr-2"> 普通绘图{{ ai_draw_pay }}/1张<br>
-                                    Midj绘图{{ mj_midj }}/1张
+                            </h4>
+                            <a-tooltip  position="bottom">
+                                <template #content>
+                                    <div class="left-panel-footer__spend-tip  text-white"><img
+                                        src="~/assets/images/jifen.png"
+                                        class="left-panel-footer__icon mr-2"> 普通绘图{{ ai_draw_pay }}/1张<br>
+                                        Midj绘图{{ mj_midj }}/1张
+                                    </div>
+                                </template>
+                                <icon-exclamation-circle class="font-18"/>
+                            </a-tooltip>
+                            <div class="left-panel-setting-block__header">
+                                <div class="left-panel-setting-block__title fs-5"> 帮我描述</div>
+                            </div>
+                            <a-textarea
+                                v-model="draw_ai"
+                                :auto-size="{ minRows: 3, maxRows: 5 }"
+                                type="textarea"
+                                allow-clear
+                                placeholder="请输入简单的描述，AI将智能输出绘图内容"
+                            />
+                            <a-button type="primary" class="w-100 mt-2 mb-2" :loading="draw_loading"
+                                      @click="send_ai_draw()">生成绘图描述
+                            </a-button>
+                            <div class="left-panel-setting-block__header">
+                                <div class="left-panel-setting-block__title fs-5"> 灵感需求
+                                    <a-button :loading="draw_loading" type="primary" status="success" shape="round" class="ml-1" @click="translate()">
+                                        <template #icon><icon-translate /></template>
+                                        翻译英文
+                                    </a-button>
+                                    <a-button type="primary" status="warning" shape="round" class="ml-1" @click="des_send()">
+                                        <template #icon><icon-dice /></template>
+                                        描述咒语
+                                    </a-button>
                                 </div>
-                            </template>
-                            <icon-exclamation-circle class="font-18"/>
-                        </a-tooltip>
-                        <div class="left-panel-setting-block__header">
-                            <div class="left-panel-setting-block__title fs-5"> 帮我描述</div>
-                        </div>
-                        <a-textarea
-                            v-model="draw_ai"
-                            :auto-size="{ minRows: 3, maxRows: 5 }"
-                            type="textarea"
-                            placeholder="请输入简单的描述，AI将智能输出绘图内容"
-                        />
-                        <a-button type="primary" class="w-100 mt-2 mb-2" :loading="draw_loading"
-                                  @click="send_ai_draw()">生成绘图描述
-                        </a-button>
-                        <div class="left-panel-setting-block__header">
-                            <div class="left-panel-setting-block__title fs-5"> 灵感需求
-                                <a-button :loading="draw_loading" type="primary" status="success" shape="round" class="ml-1" @click="translate()">
-                                    <template #icon><icon-translate /></template>
-                                    翻译英文
+                                <div class="ai-writer__panel-section__optional fs-6 cursor-pointer"
+                                     @click="change_prompt()">
+                                    试试示例
+                                </div>
+                            </div>
+                            <a-textarea
+                                v-model="input2"
+                                :auto-size="{ minRows: 7, maxRows: 7 }"
+                                type="textarea"
+                                allow-clear
+                                placeholder="请用英文输入Prompt，参考形式：画面主体，细节描述，修饰词"
+                            />
+                            <div class="left-panel-footer__button-group">
+                                <a-button :loading="draw_loading" v-if="activeDraw=='gpt'" @click="ai_draw()"
+                                          class="w-100"
+                                          type="primary" size="large">
+                                    <icon-image class="up_images" />
+                                    开始绘图
+                                </a-button>
+                                <a-button :loading="draw_loading" v-else-if="activeDraw=='dream'"
+                                          @click="ai_draw_dreams()"
+                                          class="w-100" type="primary" size="large">
+                                    <icon-image class="up_images" />
+                                    开始绘图
+                                </a-button>
+                                <a-button :loading="draw_loading" v-else-if="activeDraw=='midj'"
+                                          @click="midj_ai_draw_send()" class="w-100" type="primary" size="large">
+                                    <icon-image class="up_images" />
+                                    开始绘图
                                 </a-button>
                             </div>
-                            <div class="ai-writer__panel-section__optional fs-6 cursor-pointer"
-                                 @click="change_prompt()">
-                                试试示例
+
+                            <!--finish go-->
+                            <div class="ernie-vilg-image" v-if="is_sc || is_finish">
+                                <div>
+                                    <div class="ernie-vilg-item-desc" v-if="is_sc || is_finish"
+                                         style="margin-bottom: 0px;">
+                                        正在生成中，预计需要 60s
+                                    </div>
+
+                                    <div class="eE9d1okq" style="margin-top: 20px;" v-if="is_sc">
+                                        <div class="ernie-vilg-image-item" v-for="item in image_select">
+                                            <img class="ernie-vilg-image-item-img" src="@/assets/images/loading2.gif">
+                                        </div>
+                                    </div>
+                                    <div class="eE9d1okq" style="margin-top: 20px;" v-if="is_finish">
+                                        <div class="ernie-vilg-image-item" v-for="(image,fi_index) in r_images"
+                                             :key="fi_index">
+                                            <img class="ernie-vilg-image-item-img" :src="image.url">
+
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
-                        </div>
-                        <a-textarea
-                            v-model="input2"
-                            :auto-size="{ minRows: 7, maxRows: 7 }"
-                            type="textarea"
-                            placeholder="请用英文输入Prompt，参考形式：画面主体，细节描述，修饰词"
-                        />
-                        <div class="left-panel-footer__button-group">
-                            <a-button :loading="draw_loading" v-if="activeDraw=='gpt'" @click="ai_draw()"
-                                      class="w-100"
-                                      type="primary" size="large">
-                                <icon-image class="up_images" />
-                                开始绘图
-                            </a-button>
-                            <a-button :loading="draw_loading" v-else-if="activeDraw=='dream'"
-                                      @click="ai_draw_dreams()"
-                                      class="w-100" type="primary" size="large">
-                                <icon-image class="up_images" />
-                                开始绘图
-                            </a-button>
-                            <a-button :loading="draw_loading" v-else-if="activeDraw=='midj'"
-                                      @click="midj_ai_draw_send()" class="w-100" type="primary" size="large">
-                                <icon-image class="up_images" />
-                                开始绘图
-                            </a-button>
-                        </div>
 
-                        <!--finish go-->
-                        <div class="ernie-vilg-image" v-if="is_sc || is_finish">
-                            <div>
-                                <div class="ernie-vilg-item-desc" v-if="is_sc || is_finish"
-                                     style="margin-bottom: 0px;">
-                                    正在生成中，预计需要 60s
-                                </div>
-
-                                <div class="eE9d1okq" style="margin-top: 20px;" v-if="is_sc">
-                                    <div class="ernie-vilg-image-item" v-for="item in image_select">
-                                        <img class="ernie-vilg-image-item-img" src="@/assets/images/loading2.gif">
-                                    </div>
-                                </div>
-                                <div class="eE9d1okq" style="margin-top: 20px;" v-if="is_finish">
-                                    <div class="ernie-vilg-image-item" v-for="(image,fi_index) in r_images"
-                                         :key="fi_index">
-                                        <img class="ernie-vilg-image-item-img" :src="image.url">
-
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <!--finish go end-->
-                        <a-tabs @tab-click="handleGme" v-model="activeName" type="capsule" size="large" class="mt-4">
-                            <a-tab-pane title="绘画广场" key="first" >
-                                <a-row :gutter="20" v-if="public_draw.length>0 && !ske_loading">
-                                    <Waterfall :list="public_draw" :crossOrigin=false backgroundColor="#ddd0">
-
-                                        <template #item="{ item, url, index }">
-                                                    <div class="item list-animation-bottomIn"
-                                                         :class="'delay-'+index"
-                                                         >
-
-                                                        <a-image
-                                                            class="u-img cursor-pointer"
-                                                            :src="item.image"
-                                                            :zoom-rate="1.2"
-                                                            fit="fill"
-                                                            :title="item.title"
-
-                                                        >
-                                                            <template #extra>
-                                                                <div class="actions">
-                                                                    <span class="action" @click="onDownLoad(item.image)"><icon-download /></span>
-                                                                    <a-tooltip :content="item.title">
-                                                                        <span class="action ml-1"><icon-info-circle /></span>
-                                                                    </a-tooltip>
-                                                                </div>
-                                                            </template>
-                                                            <!--<template #loader>-->
-                                                            <!--    <img-->
-                                                            <!--        src="@/assets/images/pic_load.png"-->
-                                                            <!--    />-->
-                                                            <!--</template>-->
-                                                        </a-image>
-                                                    </div>
-                                        </template>
-
-                                    </Waterfall>
-                                    <!--<waterFull-->
-                                    <!--    :images="public_draw"-->
-                                    <!--    :columnCount="4"-->
-                                    <!--    :columnGap="10"-->
-                                    <!--    width="100%"-->
-                                    <!--    mode="JS"-->
-                                    <!--    backgroundColor="#F2F4F8"/>-->
-                                    <div class="mt-10 flex justify-center w-full">
-                                        <a-button class="load_more" :loading="load_more_loading" @click="load_more()">
-                                            <template #icon>
-                                                <icon-refresh />
-                                            </template>
-                                            加载更多
-                                        </a-button>
-                                    </div>
-
-                                </a-row>
-
-                                <a-empty description="暂无数据哦~" v-else/>
-                                <!--<div class="mt-10 flex justify-center">-->
-
-                                <!--    <a-pagination-->
-                                <!--        :current="public_page"-->
-                                <!--        :page-size="public_page_size"-->
-                                <!--        class="mr-4 ml-4"-->
-                                <!--        background-->
-                                <!--        hide-on-single-page-->
-                                <!--        :total="public_draw_count"-->
-                                <!--        @change="public_change"-->
-                                <!--    />-->
-                                <!--</div>-->
-                            </a-tab-pane>
-                            <a-tab-pane title="我的绘画" key="second">
-                                <a-spin :loading="ske_loading">
-                                    <a-row :gutter="20" v-if="me_draw.length>0 && !ske_loading">
-                                        <a-col
-                                            v-for="(m,m_index) in me_draw" :key="m_index"
-                                            :xs="12" :sm="12" :md="24" :lg="12" :xl="6"
-                                        >
-                                            <a-card :body-style="{ padding: '0px' }" class="mb-2">
-                                                <a-image
-                                                    :src="m.image?m.image:no_img"
-                                                    class="image cursor-pointer"
-                                                    fit="fill"
-                                                    :initial-index="m_index"
-                                                    :style="{
+                            <!--finish go end-->
+                            <a-tabs @tab-click="handleGme" v-model="activeName" type="capsule" size="large" class="mt-4">
+                                <a-tab-pane title="我的绘画" key="first">
+                                    <a-spin :loading="ske_loading">
+                                        <a-row :gutter="20" v-if="me_draw.length>0 && !ske_loading">
+                                            <a-col
+                                                v-for="(m,m_index) in me_draw" :key="m_index"
+                                                :xs="12" :sm="12" :md="24" :lg="12" :xl="6"
+                                            >
+                                                <a-card :body-style="{ padding: '0px' }" class="mb-2">
+                                                    <a-image
+                                                        :src="m.image?m.image:m.no_img"
+                                                        class="image cursor-pointer"
+                                                        fit="contain"
+                                                        :initial-index="m_index"
+                                                        :style="{
                                                   height: '250px',
                                                     width: '100%',
                                                   overflow: 'hidden',
                                                   display: 'flex',
                                                   justifyContent: 'center',
                                                 }"
-                                                >
-                                                    <template #loader>
-                                                        <img
-                                                            class="h-full p-3"
-                                                            src="@/assets/images/pic_load.png"
-                                                        />
-                                                    </template>
-                                                </a-image>
-
-                                                <div class="progress p-2 bg-white" v-if="m.progress!=100">
-                                                    <a-progress :percent="m.progress/100" />
-                                                </div>
-                                                <div style="padding: 10px 10px" class="me_show_pic">
-                                                    <a-tooltip
-                                                        placement="top-start"
-                                                        title="Prompt:"
-                                                        :width="200"
-                                                        trigger="hover"
-                                                        :content="m.title"
-
                                                     >
-                                                        <span class="w-25">{{ m.title }}</span>
-                                                    </a-tooltip>
-                                                    <div class="bottom ">
-                                                        <a-space>
-                                                            <a-button size="small" type="primary" status="danger"
-                                                                      :loading="draw_bottom" round class="button"
-                                                                      v-if="m.is_public==0"
-                                                                      @click="send_pub(0,m.id)"
-                                                            >私密
-                                                            </a-button>
-                                                            <a-button size="small" type="primary"
-                                                                      :loading="draw_bottom"
-                                                                      round class="button"
-                                                                      v-else
-                                                                      @click="send_pub(1,m.id)"
-                                                            >公开
-                                                            </a-button>
-                                                            <a-button size="small" type="primary" status="danger"
-                                                                      :loading="draw_bottom" round class="button"
-                                                                      @click="del_me_draw(m.id)"
-                                                            >删除
-                                                            </a-button>
-                                                        </a-space>
+                                                        <template #loader>
+                                                            <img
+                                                                class="h-full p-3"
+                                                                src="@/assets/images/pic_load.png"
+                                                            />
+                                                        </template>
+                                                    </a-image>
+
+                                                    <div class="progress p-2 bg-white" v-if="m.progress!=100">
+                                                        <a-progress :percent="m.progress/100" />
+                                                    </div>
+                                                    <div style="padding: 10px 10px" class="me_show_pic">
+                                                        <a-tooltip
+                                                            placement="top-start"
+                                                            title="Prompt:"
+                                                            :width="200"
+                                                            trigger="hover"
+                                                            :content="m.title"
+
+                                                        >
+                                                            <span class="w-25">{{ m.title }}</span>
+                                                        </a-tooltip>
+                                                        <div class="bottom ">
+                                                            <a-space>
+                                                                <a-button size="small" type="primary" status="danger"
+                                                                          :loading="draw_bottom" round class="button"
+                                                                          v-if="m.is_public==0"
+                                                                          @click="send_pub(0,m.id)"
+                                                                >私密
+                                                                </a-button>
+                                                                <a-button size="small" type="primary"
+                                                                          :loading="draw_bottom"
+                                                                          round class="button"
+                                                                          v-else
+                                                                          @click="send_pub(1,m.id)"
+                                                                >公开
+                                                                </a-button>
+                                                                <a-button size="small" type="primary" status="danger"
+                                                                          :loading="draw_bottom" round class="button"
+                                                                          @click="del_me_draw(m.id)"
+                                                                >删除
+                                                                </a-button>
+                                                            </a-space>
+
+                                                        </div>
 
                                                     </div>
 
-                                                </div>
-                                                <div class="tags_up  pl-2 mb-2" v-if="m.type=='midjourney'">
-                                                    <div class="flex">
-                                                        <span>变大：</span>
-                                                        <a-button size="mini" v-for="(u,u_index) in 4"
-                                                                  :key="u_index"
-                                                                  @click="up_image_midj(u_index,m.title,m.prompt_id)"
-                                                                  :disabled="up_loading"
-                                                                  class="mr-4 cursor-pointer mb-2">
-                                                            {{ 'U' + (u_index + 1) }}
-                                                        </a-button>
+                                                    <div class="tags_up  pl-2 mb-2" v-if="m.type=='midjourney'">
+                                                        <div class="flex">
+                                                            <span>变大：</span>
+                                                            <a-button size="mini" v-for="(u,u_index) in 4"
+                                                                      :key="u_index"
+                                                                      @click="up_image_midj(u_index,m.title,m.prompt_id,m.message_id)"
+                                                                      :disabled="up_loading"
+                                                                      class="mr-4 cursor-pointer mb-2">
+                                                                {{ 'U' + (u_index + 1) }}
+                                                            </a-button>
+
+                                                        </div>
+                                                        <div class="flex">
+                                                            <span>变换：</span>
+                                                            <a-button size="mini" v-for="(v,v_index) in 4"
+                                                                      :key="v_index"
+                                                                      @click="vp_image_midj(v_index,m.title,m.prompt_id,m.message_id)"
+                                                                      :disabled="up_loading"
+                                                                      class="mr-4 cursor-pointer">
+                                                                {{ 'V' + (v_index + 1) }}
+                                                            </a-button>
+                                                        </div>
 
                                                     </div>
-                                                    <div class="flex">
-                                                        <span>变换：</span>
-                                                        <a-button size="mini" v-for="(v,v_index) in 4"
-                                                                  :key="v_index"
-                                                                  @click="vp_image_midj(v_index,m.title,m.prompt_id)"
-                                                                  :disabled="up_loading"
-                                                                  class="mr-4 cursor-pointer">
-                                                            {{ 'V' + (v_index + 1) }}
-                                                        </a-button>
-                                                    </div>
+                                                    <div class="mt-2 pl-2 mb-2">创建时间：{{ m.created_at }}</div>
+                                                </a-card>
+                                            </a-col>
+                                        </a-row>
 
-                                                </div>
-                                                <div class="mt-2 pl-2 mb-2">创建时间：{{ m.created_at }}</div>
-                                            </a-card>
-                                        </a-col>
-                                    </a-row>
+                                        <a-empty description="暂无数据哦~" v-else/>
+                                        <div class="mt-10 flex justify-center">
 
-                                    <a-empty description="暂无数据哦~" v-else/>
-                                    <div class="mt-10 flex justify-center">
+                                            <a-pagination
+                                                :current="me_page"
+                                                :page-size="me_page_size"
+                                                class="mr-4 ml-4"
+                                                hide-on-single-page
+                                                background
+                                                :total="me_draw_count"
+                                                @change="me_change"
+                                            />
+                                        </div>
+                                    </a-spin>
 
-                                        <a-pagination
-                                            :current="me_page"
-                                            :page-size="me_page_size"
-                                            class="mr-4 ml-4"
-                                            hide-on-single-page
-                                            background
-                                            :total="me_draw_count"
-                                            @change="me_change"
-                                        />
-                                    </div>
-                                </a-spin>
+                                </a-tab-pane>
+                                <a-tab-pane title="我的收藏" key="second">
+                                    <a-spin :loading="ske_loading" class="draw_group">
+                                        <a-row :gutter="20" v-if="public_draw.length>0">
+                                            <waterFull
+                                                :images="public_draw"
+                                                :columnCount="columnCount"
+                                                :columnGap="10"
+                                                width="100%"
+                                                mode="JS"
+                                                backgroundColor="#F2F4F8"
+                                                @get_new_public="get_my_like"
+                                            />
+                                            <div class="mt-10 flex justify-center w-full mb-4">
+                                                <a-button class="load_more" :loading="load_more_loading" @click="load_more()">
+                                                    <template #icon>
+                                                        <icon-refresh />
+                                                    </template>
+                                                    加载更多
+                                                </a-button>
+                                            </div>
+                                        </a-row>
 
-                            </a-tab-pane>
-                        </a-tabs>
+                                        <a-empty description="暂无数据哦~" v-else/>
+                                    </a-spin>
+
+                                </a-tab-pane>
+                            </a-tabs>
 
 
-                    </div>
+                        </div>
                     </client-only>
                 </div>
             </div>
@@ -793,26 +759,57 @@
         </a-tabs>
 
     </a-drawer>
+    <a-modal v-model:visible="beizhu_info" title="公开标题名称" @ok="handle_send">
+        <h6>作品名称</h6>
+        <a-input v-model="beizhu" placeholder="请定义要展示的作品名称" />
+        <h6 class="mt-3">分类</h6>
+        <a-select v-model="fenlei" placeholder="请选择分类" multiple >
+            <a-option  v-for="(cate,c_index) in fenlei_list" :key="c_index" :value="cate.id" :label="cate.title"/>
+        </a-select>
+    </a-modal>
 
+    <a-modal v-model:visible="des_dialog" class="des_dialog" title="描述咒语">
+        <div class="des_form flex">
+            <a-tabs position="left" class="w-50">
+                <a-tab-pane v-for="(des,des_index) in des_all" :key="des_index" :title="des.title">
+                    <a-space>
+                        <a-button class="mt-2 mb-2" v-for="(des_t,des_t_index) in des.contents" :key="des_t_index" @click="add_content(des_t.en_title)">
+                            {{des_t.title}}
+                        </a-button>
+                    </a-space>
+
+                </a-tab-pane>
+            </a-tabs>
+            <div class="content">
+                <a-textarea
+                    v-model="input2"
+                    :auto-size="{ minRows: 10, maxRows: 10 }"
+                    type="textarea"
+                    allow-clear
+                    placeholder="请用英文输入Prompt，参考形式：画面主体，细节描述，修饰词"/>
+            </div>
+        </div>
+
+    </a-modal>
 </template>
 
 <script setup lang="ts">
 import {ref,onMounted} from "vue";
 import {useCounter} from '~/store/counter'
-
+//definePageMeta({
+//middleware: ['mustlogin']
+//})
 const counter = useCounter()
 import {
-    IconInfoCircleFill,
     IconMenuUnfold,
     IconImage,
     IconCloud,
     IconDelete,
     IconPlus,
-    IconDownload,
-    IconInfoCircle,
     IconTranslate,
     IconExclamationCircle,
-    IconRefresh
+    IconRefresh,
+    IconDice
 } from '@arco-design/web-vue/es/icon';
 
 useHead({
@@ -826,6 +823,7 @@ useHead({
 import { LazyImg, Waterfall } from 'vue-waterfall-plugin-next'
 import 'vue-waterfall-plugin-next/dist/style.css'
 import {Message} from "@arco-design/web-vue";
+import {draw_cate_me, get_curse} from "~/utils/api";
 
 const onSuccess = () => {
     console.log('success')
@@ -886,6 +884,23 @@ const image_select = ref(1)
 const srcList = ref([])
 const pub_srcList = ref([])
 const mj_midj = ref(0)
+const des_dialog = ref(false)
+const des_all = ref([])
+const des_send = ()=>{
+    des_dialog.value = true
+    get_curse().then((res:any)=>{
+        des_all.value = res._rawValue.data
+    }).catch((err:any)=>{
+        Message.error(err)
+    })
+}
+const add_content = (content:any)=>{
+    if (input2.value == '') {
+        input2.value = content+' '
+    }else{
+        input2.value += ' '+content
+    }
+}
 const all_size = [
     {
         label: '256x256',
@@ -1117,9 +1132,7 @@ const me_page_size = ref(16)
 const public_page_size = ref(16)
 const ske_loading = ref(false)
 const token = useCookie('token')
-if (token.value) {
-    get_user_balance()
-}
+
 const check_time = ref(false)
 const time_set = ref()
 const get_me_d = () => {
@@ -1157,27 +1170,7 @@ const get_me_d = () => {
 if (token.value) {
     get_me_d()
 }
-const load_more_loading = ref(false)
-const get_new_public = () => {
-    pub_srcList.value = []
-    load_more_loading.value = true
-    get_public_draw({
-        page: public_page.value,
-        limit: public_page_size.value,
-    }).then((res: any) => {
-        public_draw.value = res._rawValue.data
-        public_draw_count.value = res._rawValue.count
-        load_more_loading.value = false
-    }).catch((err: any) => {
-        console.log(err)
-        load_more_loading.value = false
-    })
-    for (let i = 0; i < public_draw.value.length; i++) {
-        pub_srcList.value.push(public_draw.value[i].image)
-    }
 
-}
-get_new_public()
 const visible1  = ref(false)
 const onDownLoad = (imgsrc:any)=>{
     // 下载当前图片
@@ -1190,22 +1183,89 @@ const onDownLoad = (imgsrc:any)=>{
         a.click()
     }
 }
+const beizhu = ref('')
+const beizhu_info = ref(false)
+const beizhu_id = ref(0)
+const fenlei_list = ref([])
+const fenlei = ref(1)
 const send_pub = (c: number, mid: number) => {
+    if(c==0){
+        beizhu_info.value = true
+        beizhu_id.value = mid
+        draw_cate_me({
+            id :mid
+        }).then((res: any) => {
+            fenlei_list.value = res._rawValue.data
+            fenlei.value = res._rawValue.cate_id
+        }).catch((err: any) => {
+            console.log(err)
+        })
+        for (let i = 0; i < me_draw.value.length; i++) {
+            if (me_draw.value[i].id == mid) {
+                beizhu.value = me_draw.value[i].name
+            }
+        }
+
+    }else{
+        send_public({
+            draw_id: mid,
+        }).then((res: any) => {
+            Message.success(res._rawValue.message)
+            get_me_d()
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }
+
+}
+const load_more_loading = ref(false)
+const columnCount = ref(4)
+
+const get_my_like = ()=>{
+    load_more_loading.value = true
+    get_draw_like({
+        page: public_page.value,
+        limit: public_page_size.value,
+    }).then((res: any) => {
+        public_draw.value = res._rawValue.data
+        public_draw_count.value = res._rawValue.count
+        load_more_loading.value = false
+    }).catch((err: any) => {
+        console.log(err)
+        load_more_loading.value = false
+    })
+}
+
+const load_more = () => {
+    public_page_size.value +=20
+    get_my_like()
+}
+
+const handle_send = () => {
+    if (beizhu.value == '') {
+        Message.error('请输入名称')
+        return false
+    }
+    if (fenlei.value == '') {
+        Message.error('请选择分类')
+        return false
+    }
     send_public({
-        draw_id: mid
+        draw_id: beizhu_id.value,
+        name: beizhu.value,
+        cate: JSON.stringify(fenlei.value)
     }).then((res: any) => {
         Message.success(res._rawValue.message)
         get_me_d()
-        get_new_public()
+        beizhu_info.value = false
     }).catch((err: any) => {
         console.log(err)
     })
 }
-const change_activeN = (v: string) => {
-    activeName.value = v
-    get_new_public()
+if (token.value) {
+    get_user_balance()
+    get_my_like()
 }
-
 const get_info = (name: string) => {
     if (input2.value == '') {
         input2.value = name
@@ -1517,14 +1577,15 @@ const midj_ai_draw_check = (midj_ai: any) => {
 const up_loading = ref(false)
 
 
-const up_image_midj = (index: number, title: any, prompt_id: any) => {
+const up_image_midj = (index: number, title: any, prompt_id: any,message_id:any) => {
     up_loading.value = true
     is_sc.value = true
     draw_loading.value = true
     up_midj_index({
         prompt: title,
         index: index,
-        prompt_id: prompt_id
+        prompt_id: prompt_id,
+        message_id:message_id
     }).then((res: any) => {
         up_loading.value = false
         r_images.value = res._rawValue.data
@@ -1540,14 +1601,15 @@ const up_image_midj = (index: number, title: any, prompt_id: any) => {
     })
 }
 
-const vp_image_midj = (index: number, title: any, prompt_id: any) => {
+const vp_image_midj = (index: number, title: any, prompt_id: any,message_id:any) => {
     up_loading.value = true
     is_sc.value = true
     draw_loading.value = true
     v_midj_index({
         prompt: title,
         index: index,
-        prompt_id: prompt_id
+        prompt_id: prompt_id,
+        message_id:message_id
     }).then((res: any) => {
         up_loading.value = false
         r_images.value = res._rawValue.data
@@ -1568,14 +1630,7 @@ const me_change = (val: number) => {
     get_me_d()
 }
 
-const public_change = (val: number) => {
-    public_page.value = val
-    get_new_public()
-}
-const load_more = () => {
-    public_page_size.value +=16
-    get_new_public()
-}
+
 const draw_bottom = ref(false)
 const del_me_draw = (id: number) => {
     draw_bottom.value = true

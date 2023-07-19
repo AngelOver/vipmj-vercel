@@ -215,6 +215,9 @@ const tabs = ref([])
 const tab_active=ref()
 const counter = useCounter()
 const token  = useCookie('token')
+//definePageMeta({
+//middleware: ['mustlogin']
+//})
 useHead({
     title: 'AI小应用 - '+counter.setting.title,
     meta: [

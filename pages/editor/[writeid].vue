@@ -53,13 +53,53 @@
             </div>
             <div class="ai_write_wrap">
                 <a-row :gutter="40" class="mt-40">
+                    <div class="sticky" style="top: 95%;z-index: 10" :style="ai_write?'left:25%':'left:50%'">
+                        <div class="absolute write_bottom">
+                            <a-space>
+                                <a-button :loading="send_loading" type="primary" @click="write_set('content_long')">
+                                    <template #icon>
+                                        <icon-edit />
+                                    </template>
+                                    写内容
+                                </a-button>
+                                <a-button :loading="send_loading" type="primary" @click="write_set('content_outline')">
+                                    <template #icon>
+                                        <icon-find-replace />
+                                    </template>
+                                    写大纲
+                                </a-button>
+                            </a-space>
+
+                            <a-space>
+                                <a-tooltip content="生成400字以下内容">
+                                    <a-button @click="change_font_length(400)" :type="write_content_font==400?'primary':'secondary'">
+                                        短
+                                    </a-button>
+                                </a-tooltip>
+                                <a-tooltip content="生成1000字以下内容">
+                                    <a-button @click="change_font_length(1000)" :type="write_content_font==1000?'primary':'secondary'">
+                                        中
+                                    </a-button>
+                                </a-tooltip>
+                                <a-tooltip content="生成2000字以下内容">
+                                    <a-button @click="change_font_length(2000)" :type="write_content_font==2000?'primary':'secondary'">
+                                        长
+                                    </a-button>
+                                </a-tooltip>
+
+                            </a-space>
+                        </div>
+                    </div>
                     <a-col :xs="{span: 24}" :lg="{span:ai_write?12:24}">
-                        <div class="container_w mb-2 bg-white">
+                        <div class="container_w mb-2 bg-white relative pb-10">
                             <a-input v-model="title" placeholder="标题" size="large"></a-input>
                             <TEditor :ai_write_type="ai_write_type" :select_text="select_text" :content="content" :disabled="false" @getContent="getContent" @selectText="selectText"  @aiType="aiType"/>
 
+
                         </div>
+
                     </a-col>
+
                     <a-col :xs="{span: 24}" :lg="{span:12}" v-if="ai_write && ai_write_type==''">
                         <div class="right_ai_content">
                             <h3>AI模版</h3>
@@ -275,6 +315,7 @@ import {
     IconEdit,
     IconCopy,
     IconRotateLeft,
+    IconFindReplace
 } from '@arco-design/web-vue/es/icon'
 import {Message} from "@arco-design/web-vue";
 import {asBlob} from "html-docx-js-typescript";
@@ -301,6 +342,17 @@ const aiType = (v: string) => {
     right_content.value = select_text.value
     send_ai_content_c()
 }
+
+const write_set = (v: string) => {
+    ai_write_type.value = v
+    if (content.value==null || content.value==''){
+        Message.error('请先输入内容')
+        return
+    }
+    select_text.value = content.value
+    send_ai_content_c()
+}
+
 const save_loading = ref(false)
 const ai_write = ref(route.query.ai_write?route.query.ai_write:false)
 const ai_write_type = ref(route.query.ai_write_type?route.query.ai_write_type:'')
@@ -334,19 +386,28 @@ watch (title, (v) => {
         saveContent();
     }, 3000));
 })
-const saveContent = () =>{
+const headers = {
+    'Authorization': `Bearer ${token.value}`,
+    'Accept': 'text/event-stream',
+}
+const saveContent = async () => {
     save_loading.value = true
-    save_content({
-        title: title.value,
-        content: content.value,
-        id: route.params.writeid
-    }).then((res: any) => {
-        console.log(res)
-        save_loading.value = false
-    }).catch((err: any) => {
-        console.log(err)
-        save_loading.value = false
+    const res = await fetch(`${baseUrl}api/save_content`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+            title: title.value,
+            content: content.value,
+            id:route.params.writeid
+        }),
+
     })
+    if (res.status!=200){
+        Message.error('保存失败')
+        save_loading.value = false
+        return
+    }
+    save_loading.value = false
 }
 const ai_write_open = () =>{
     ai_write.value = !ai_write.value
@@ -369,13 +430,14 @@ const res_up = () =>{
 }
 const send_loading = ref(false)
 const {public: {baseUrl}} = useRuntimeConfig()
-const headers = {
-    'Authorization': `Bearer ${token.value}`,
-    'Accept': 'text/event-stream',
-}
+
 const streams = ref('')
 const last_content = ref('')
 const select_style = ref(1)
+const write_content_font = ref(400)
+const change_font_length = (v: number) =>{
+    write_content_font.value = v
+}
 const write_style = ref([
     {
         name:'专业',
@@ -430,7 +492,7 @@ const send_ai_content = async () => {
             title: title.value,
             content: right_content.value,
             type: ai_write_type.value,
-            style: select_style.value
+            style: select_style.value,
         }),
 
     })
@@ -515,6 +577,10 @@ const send_ai_content_c = async () => {
         Message.error('请选择内容')
         return false
     }
+    if (content.value == '') {
+        Message.error('请输入内容')
+        return false
+    }
 
     send_loading.value = true
     const res = await fetch(`${baseUrl}api/generate_content_c`, {
@@ -524,6 +590,7 @@ const send_ai_content_c = async () => {
             title: title.value,
             content: select_text.value,
             type: ai_write_type.value,
+            write_content_font: write_content_font.value,
         }),
 
     })

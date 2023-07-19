@@ -840,9 +840,34 @@
     <a-modal v-model:visible="dialogFormVisible"
              :title="counter.setting.money_name_set+'充值'">
         <a-spin :loading="qr_load">
-            <div class="qr_fing">
+            <div class="qr_fing relative">
+                <div class="absolute pay_over" v-if="qr_show && pay_now_type!='paying'">
+                    <h4 class="text-white" v-if="pay_now_type=='success'">
+                        <p class="text-green-400 text-center">
+                            <icon-check />
+                        </p>
+                        支付成功
+                    </h4>
+                    <h4 class="text-white" v-else-if="pay_now_type=='time_out'">
+                        <p class="text-red-400 text-center">
+                            <icon-close />
+                        </p>
+                        超时未支付
+                    </h4>
+                </div>
                 <qrcode-vue v-if="qr_show" :value="pay_scan" size="240"
-                            class="mt-2 mb-2 m-auto d-sm-block"></qrcode-vue>
+                            class="mt-2 mb-2 m-auto d-sm-block">
+
+                </qrcode-vue>
+                <h4 class="text-center time_in" v-if="qr_show">
+                    「<a-countdown
+                    :value="Date.now() + 5 * 60 * 1000"
+                    format="HH:mm:ss"
+                    :now="Date.now()"
+                    :start="start"
+                    @finish="handleFinish"
+                />」
+                </h4>
             </div>
         </a-spin>
 
@@ -868,7 +893,7 @@
                                               <a-button type="primary" @click="send_charge()" :loading="charge_loading">
                                           立即充值
                                         </a-button>
-                                          <a-button type="primary" plain @click="dialogm()">
+                                          <a-button type="primary" status="warning"  @click="dialogm()">
                                               完成支付
                                           </a-button>
                                           </a-space>
@@ -885,9 +910,34 @@
         </a-alert>
 
         <a-spin :loading="qr_load">
-            <div class="qr_fing">
+            <div class="qr_fing relative">
+                <div class="absolute pay_over" v-if="qr_show && pay_now_type!='paying'">
+                    <h4 class="text-white" v-if="pay_now_type=='success'">
+                        <p class="text-green-400 text-center">
+                            <icon-check />
+                        </p>
+                        支付成功
+                    </h4>
+                    <h4 class="text-white" v-else-if="pay_now_type=='time_out'">
+                        <p class="text-red-400 text-center">
+                            <icon-close />
+                        </p>
+                        超时未支付
+                    </h4>
+                </div>
                 <qrcode-vue v-if="qr_show" :value="pay_scan" size="240"
-                            class="mt-2 mb-2 m-auto d-sm-block"></qrcode-vue>
+                            class="mt-2 mb-2 m-auto d-sm-block">
+
+                </qrcode-vue>
+                <h4 class="text-center time_in" v-if="qr_show">
+                    「<a-countdown
+                    :value="Date.now() + 5 * 60 * 1000"
+                    format="HH:mm:ss"
+                    :now="Date.now()"
+                    :start="start"
+                    @finish="handleFinish"
+                />」
+                </h4>
             </div>
         </a-spin>
 
@@ -937,7 +987,7 @@
                                       <span class="dialog-footer">
                                           <a-space>
                                               <a-button type="primary" @click="up_to_vip()">立即升级</a-button>
-                                                <a-button type="primary" plain @click="dialogv()">
+                                                <a-button type="primary" status="warning" plain @click="dialogv()">
                                                   完成支付
                                                 </a-button>
                                           </a-space>
@@ -1066,14 +1116,20 @@ import {
     IconImport,
     IconMenuUnfold,
     IconMenuFold,
+    IconCheck,
+    IconClose
 } from "@arco-design/web-vue/es/icon";
 
 const collapsed = ref(false);
+const pay_now_type = ref('paying')
 const onCollapse = () => {
     collapsed.value = !collapsed.value;
 };
 const counter = useCounter()
-
+const start = ref(false);
+const handleFinish = () => {
+    pay_now_type.value = 'time_out'
+};
 useHead({
     title: '个人中心 - ' + counter.setting.title,
     meta: [
@@ -1188,6 +1244,10 @@ const consum_type = (type:any)=>{
             return '思维导图'
         case 'write':
             return 'AI写作'
+        case 'pdf':
+            return 'PDF转换'
+        case 'fly':
+            return '星火'
     }
 }
 const consum = ref([])
@@ -1277,11 +1337,13 @@ const pay_scan = ref('')
 const charge_loading = ref(false)
 const qr_load = ref(false)
 const qr_show = ref(false)
+let time_check_status = ref('') as any
 const send_charge = () => {
     if (form.amount == 0) {
         Message.error('请输入充值' + counter.setting.money_name_set)
         return
     }
+    clearInterval(time_check_status.value)
     charge_loading.value = true
     qr_load.value = true
     qr_show.value = true
@@ -1299,7 +1361,26 @@ const send_charge = () => {
                 window.location.href = res._rawValue.pay_url
             } else {
                 console.log('pc')
+                start.value = true
+                pay_now_type.value = 'paying'
                 pay_scan.value = res._rawValue.qr_code
+                time_check_status.value = setInterval(() => {
+                    check_order_status({
+                        order_id:res._rawValue.order_id
+                    }).then((res:any)=>{
+                        if(res._rawValue.status == 200){
+                            clearInterval(time_check_status.value)
+                            pay_now_type.value = 'success'
+                            now_user()
+                            dialogFormVisible.value = false
+                            Message.success('充值成功')
+                            start.value = false
+                        }
+                    }).catch((err:any)=>{
+                        clearInterval(time_check_status.value)
+                        console.log(err)
+                    })
+                }, 5000)
             }
             charge_loading.value = false
             qr_load.value = false
@@ -1320,7 +1401,26 @@ const send_charge = () => {
                 window.location.href = res._rawValue.pay_url
             } else {
                 console.log('pc')
+                start.value = true
+                pay_now_type.value = 'paying'
                 pay_scan.value = res._rawValue.qr_code
+                time_check_status.value = setInterval(() => {
+                    check_order_status({
+                        order_id:res._rawValue.order_id
+                    }).then((res:any)=>{
+                        if(res._rawValue.status == 200){
+                            clearInterval(time_check_status.value)
+                            pay_now_type.value = 'success'
+                            now_user()
+                            dialogFormVisible.value = false
+                            Message.success('充值成功')
+                            start.value = false
+                        }
+                    }).catch((err:any)=>{
+                        clearInterval(time_check_status.value)
+                        console.log(err)
+                    })
+                }, 5000)
             }
             charge_loading.value = false
             qr_load.value = false
@@ -1344,6 +1444,7 @@ const up_to_vip = () => {
         Message.error('请选择VIP套餐')
         return
     }
+    clearInterval(time_check_status.value)
     charge_loading.value = true
     qr_load.value = true
     qr_show.value = true
@@ -1362,7 +1463,26 @@ const up_to_vip = () => {
                 window.location.href = res._rawValue.pay_url
             } else {
                 console.log('pc')
+                start.value = true
+                pay_now_type.value = 'paying'
                 pay_scan.value = res._rawValue.qr_code
+                time_check_status.value = setInterval(() => {
+                    check_order_status({
+                        order_id:res._rawValue.order_id
+                    }).then((res:any)=>{
+                        if(res._rawValue.status == 200){
+                            clearInterval(time_check_status.value)
+                            pay_now_type.value = 'success'
+                            now_user()
+                            dialogVip.value = false
+                            Message.success('升级VIP成功')
+                            start.value = false
+                        }
+                    }).catch((err:any)=>{
+                        clearInterval(time_check_status.value)
+                        console.log(err)
+                    })
+                }, 5000)
             }
             charge_loading.value = false
             qr_load.value = false
@@ -1386,7 +1506,26 @@ const up_to_vip = () => {
                 window.location.href = res._rawValue.pay_url
             } else {
                 console.log('pc')
+                start.value = true
+                pay_now_type.value = 'paying'
                 pay_scan.value = res._rawValue.qr_code
+                time_check_status.value = setInterval(() => {
+                    check_order_status({
+                        order_id:res._rawValue.order_id
+                    }).then((res:any)=>{
+                        if(res._rawValue.status == 200){
+                            clearInterval(time_check_status.value)
+                            pay_now_type.value = 'success'
+                            now_user()
+                            dialogVip.value = false
+                            Message.success('升级VIP成功')
+                            start.value = false
+                        }
+                    }).catch((err:any)=>{
+                        clearInterval(time_check_status.value)
+                        console.log(err)
+                    })
+                }, 5000)
             }
             charge_loading.value = false
             qr_load.value = false
@@ -1612,11 +1751,19 @@ const c_user_email = () => {
 const dialogv = () => {
     dialogVip.value = false
     now_user()
+    pay_now_type.value = 'paying'
+    qr_show.value = false
+    start.value = false
+    clearInterval(time_check_status.value)
 }
 
 const dialogm = () => {
     dialogFormVisible.value = false
     now_user()
+    pay_now_type.value = 'paying'
+    qr_show.value = false
+    start.value = false
+    clearInterval(time_check_status.value)
 }
 
 const signin_loading = ref(false)

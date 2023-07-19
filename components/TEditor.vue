@@ -21,6 +21,7 @@ import "tinymce/plugins/table"
 import "tinymce/plugins/lists"
 import "tinymce/plugins/wordcount"
 import "tinymce/plugins/code"
+import "tinymce/plugins/autoresize"
 const props = defineProps({
     content: {
         type: String,
@@ -44,7 +45,7 @@ const props = defineProps({
     },
     plugins: {
         type: [String, Array],
-        default: "lists  table",
+        default: "lists  table autoresize",
     },//必填
     toolbar: {
         type: [String, Array],
@@ -97,7 +98,8 @@ const init = reactive({
     language_url: "/tinymce/langs/zh_CN.js", // 语言包的路径，具体路径看自己的项目，文档后面附上中文js文件
     language: "zh-Hans", //语言
     skin_url: "/tinymce/skins/ui/oxide", // skin路径，具体路径看自己的项目
-    height: 400, //编辑器高度
+    // height: 400, //编辑器高度
+    autoresize_bottom_margin: 10, //编辑器底部边距
     branding: false, //是否禁用“Powered by TinyMCE”
     menubar: false, //顶部菜单栏显示
     promotion: false,
@@ -107,6 +109,7 @@ const init = reactive({
     font_formats: 'Arial=arial,helvetica,sans-serif; 宋体=SimSun; 微软雅黑=Microsoft Yahei; Impact=impact,chicago;', //字体
     fontsize_formats: '11px 12px 14px 16px 18px 24px 36px 48px 64px 72px', //文字大小
 // paste_convert_word_fake_lists: false, // 插入word文档需要该属性
+    statusbar: false, //状态栏
     paste_webkit_styles: "all",
     paste_merge_formats: true,
     nonbreaking_force_tab: false,

@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     routeRules: {
         // Admin dashboard renders only on client-side
         '/editor/**': { ssr: false },
+        '/mark_me': { ssr: false },
     },
     app: {
 
