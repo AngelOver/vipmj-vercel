@@ -3,7 +3,7 @@
 
         <a-tabs
             v-model="activeName"
-            default-active-key="first"
+            default-active-key="second"
             class="demo-tabs"
             type="capsule"
             @tab-click="handleClick"
@@ -119,6 +119,10 @@
                             </template>
                         </a-radio-group>
                     </a-form-item>
+
+                  <a-form-item label="会员权限">
+                    全站解锁 问答、绘画无限次数 = 9999次（用完可加）
+                  </a-form-item>
                     <a-form-item label="支付方式">
                         <a-radio-group v-model="form.pay_type">
                             <a-radio   v-if="counter.setting.pay_wechat_open==1" value="wechat">微信</a-radio>
@@ -129,6 +133,8 @@
                     <a-form-item label="优惠卷">
                         <a-input v-model="form.kami" placeholder="请输入优惠卷码"></a-input>
                     </a-form-item>
+
+
                 </a-form>
             </a-tab-pane>
         </a-tabs>

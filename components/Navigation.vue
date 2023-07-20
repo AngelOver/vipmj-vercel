@@ -104,6 +104,14 @@
                                 AI写作
                             </a-menu-item>
                         </NuxtLink>
+                      <NuxtLink data-toggle="pill" to="/ai_bing" role="tab" >
+                        <a-menu-item key="0_11">
+                          <template #icon>
+                            <svg t="1689855483492" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1987" width="24" height="24"><path d="M213.333333 770.986667 626.346667 546.986667 512 491.946667 442.453333 332.8 810.666667 452.266667 810.666667 631.466667 382.72 890.453333 213.333333 770.986667 213.333333 133.546667 384 192 384 618.666667 213.333333 770.986667Z" p-id="1988" fill="#8a8a8a"></path></svg>
+                          </template>
+                          新Bing聊天
+                        </a-menu-item>
+                      </NuxtLink>
                     </div>
                     <div class="ai_menu_me w-full">
                         <div class="theme_c">
