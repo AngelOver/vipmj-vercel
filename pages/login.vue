@@ -61,43 +61,43 @@
                                 <img src="@/assets/images/safe_login.png" alt="" class="w-28 m-auto mb-2">
 
                                 <p class="text-center mb-6">登录自主用户，开始聊天</p>
-                                <a-form  ref="ruleFormRefLogin" :model="ruleFormLogin" class="demo-ruleForm"
-                                         status-icon @submit="submitFormLogin">
-                                    <a-form-item :hide-label=true field="email"
-                                                 :rules="[{required:true,message:'邮箱或手机号不得为空'}]">
-                                        <a-input  v-model="ruleFormLogin.email"
-                                                  placeholder="输入你的邮箱/手机号">
-                                            <template #prefix>
-                                                <icon-user />
-                                            </template>
-                                        </a-input>
-                                    </a-form-item>
-                                    <a-form-item :hide-label=true field="password"
-                                                 :rules="[{required:true,message:'密码不得为空'},
-                                     {minLength:6,message:'必须输入大于6个字符'}]"
-                                    >
-                                        <a-input-password   v-model="ruleFormLogin.password"
-                                                            placeholder="输入你的密码">
-                                            <template #prefix>
-                                                <icon-lock />
-                                            </template>
-                                        </a-input-password>
-                                    </a-form-item>
-                                    <div class="form-group d-flex justify-content-between mb-2">
-                                        <NuxtLink class="link" href="/users/reset">忘记密码</NuxtLink>
-                                    </div>
-                                    <a-button :loading="login_loading"  type="primary"
-                                              html-type="submit" class="login mb-2">
-                                        登录
-                                    </a-button>
-                                </a-form>
+<!--                                <a-form  ref="ruleFormRefLogin" :model="ruleFormLogin" class="demo-ruleForm"-->
+<!--                                         status-icon @submit="submitFormLogin">-->
+<!--                                    <a-form-item :hide-label=true field="email"-->
+<!--                                                 :rules="[{required:true,message:'邮箱或手机号不得为空'}]">-->
+<!--                                        <a-input  v-model="ruleFormLogin.email"-->
+<!--                                                  placeholder="输入你的邮箱/手机号">-->
+<!--                                            <template #prefix>-->
+<!--                                                <icon-user />-->
+<!--                                            </template>-->
+<!--                                        </a-input>-->
+<!--                                    </a-form-item>-->
+<!--                                    <a-form-item :hide-label=true field="password"-->
+<!--                                                 :rules="[{required:true,message:'密码不得为空'},-->
+<!--                                     {minLength:6,message:'必须输入大于6个字符'}]"-->
+<!--                                    >-->
+<!--                                        <a-input-password   v-model="ruleFormLogin.password"-->
+<!--                                                            placeholder="输入你的密码">-->
+<!--                                            <template #prefix>-->
+<!--                                                <icon-lock />-->
+<!--                                            </template>-->
+<!--                                        </a-input-password>-->
+<!--                                    </a-form-item>-->
+<!--                                    <div class="form-group d-flex justify-content-between mb-2">-->
+<!--                                        <NuxtLink class="link" href="/users/reset">忘记密码</NuxtLink>-->
+<!--                                    </div>-->
+<!--                                    <a-button :loading="login_loading"  type="primary"-->
+<!--                                              html-type="submit" class="login mb-2">-->
+<!--                                        登录-->
+<!--                                    </a-button>-->
+<!--                                </a-form>-->
                                 <div class="mt-6" v-if="counter.setting.three_login_open=='1'">
                                     <div class="relative">
                                         <div class="absolute inset-0 flex items-center">
                                             <div class="w-full border-t border-gray-300" />
                                         </div>
                                         <div class="relative flex justify-center text-sm">
-                                            <span class="bg-white px-2 text-gray-500">第三方登录</span>
+                                            <span class="bg-white px-2 text-gray-500">打开微信 [扫一扫] 即可登录</span>
                                         </div>
                                     </div>
 
