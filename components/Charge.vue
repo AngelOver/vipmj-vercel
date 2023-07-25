@@ -121,7 +121,7 @@
                     </a-form-item>
 
                   <a-form-item label="会员权限">
-                    全站解锁 问答、绘画无限次数 = 9999次（用完可加）
+                    全站解锁 问答、绘画无限次数 = 9999次（无限续加）
                   </a-form-item>
                     <a-form-item label="支付方式">
                         <a-radio-group v-model="form.pay_type">
