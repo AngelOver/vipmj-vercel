@@ -8,29 +8,29 @@
                                                                                 class="absolute left-0 top-2/3 h-[0.58em] w-full fill-blue-300/70"
                                                                                 preserveAspectRatio="none"><path
                         d="M203.371.916c-26.013-2.078-76.686 1.963-124.73 9.946L67.3 12.749C35.421 18.062 18.2 21.766 6.004 25.934 1.244 27.561.828 27.778.874 28.61c.07 1.214.828 1.121 9.595-1.176 9.072-2.377 17.15-3.92 39.246-7.496C123.565 7.986 157.869 4.492 195.942 5.046c7.461.108 19.25 1.696 19.17 2.582-.107 1.183-7.874 4.31-25.75 10.366-21.992 7.45-35.43 12.534-36.701 13.884-2.173 2.308-.202 4.407 4.442 4.734 2.654.187 3.263.157 15.593-.78 35.401-2.686 57.944-3.488 88.365-3.143 46.327.526 75.721 2.23 130.788 7.584 19.787 1.924 20.814 1.98 24.557 1.332l.066-.011c1.201-.203 1.53-1.825.399-2.335-2.911-1.31-4.893-1.604-22.048-3.261-57.509-5.556-87.871-7.36-132.059-7.842-23.239-.254-33.617-.116-50.627.674-11.629.54-42.371 2.494-46.696 2.967-2.359.259 8.133-3.625 26.504-9.81 23.239-7.825 27.934-10.149 28.304-14.005.417-4.348-3.529-6-16.878-7.066Z"></path></svg><span
-                        class="relative">AI小应用</span></span>便利服务
-                    <span class="block mt-5 text-center font-18">为您提供办公、文案、集合一体化.</span>
-                    <div class="flex justify-center gap-x-6 mt-3">
-                        <NuxtLink
-                            class="group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600 relative mt-2 md:mt-0"
-                            to="/users/product">
-                            <div class="flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                     stroke="currentColor" aria-hidden="true" class="h-6 w-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="mr-0.5 whitespace-nowrap">创建应用</span></div>
-                        </NuxtLink>
-                        <NuxtLink
-                            v-if="token"
-                            class="group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-yellow-500 text-white hover:text-slate-100 hover:bg-yellow-400 active:bg-yellow-800 active:text-yellow-100 focus-visible:outline-yellow-600 relative mt-2 md:mt-0"
-                            to="/me_application">
-                            <div class="flex items-center gap-2">
-                                <svg t="1684147730534" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2967" width="18" height="18"><path d="M512 4.096C231.424 4.096 4.096 231.424 4.096 512s227.328 508.416 508.416 508.416 508.416-227.328 508.416-508.416S792.576 4.096 512 4.096z m0 941.568c-239.616 0-433.664-194.048-433.664-433.664S272.384 78.336 512 78.336s433.664 194.048 433.664 433.664-194.048 433.664-433.664 433.664z" fill="#ffffff" p-id="2968"></path><path d="M596.992 348.672c-35.328 0-66.048 17.408-84.992 44.032-18.944-25.6-49.664-42.496-83.968-42.496-57.856 0-104.448 46.592-104.448 104.448 0 28.16 11.264 53.248 29.184 72.192l1.536 1.536L511.488 686.08l159.232-159.232c18.944-18.944 30.72-45.056 30.72-73.728 0-57.856-46.592-104.448-104.448-104.448z" fill="#ffffff" p-id="2969"></path></svg>
-                                <span class="mr-0.5 whitespace-nowrap">我的收藏</span></div>
-                        </NuxtLink>
-                    </div>
+                        class="relative">AI小应用</span></span>
+<!--                    <span class="block mt-5 text-center font-18">为您提供办公、文案、集合一体化.</span>-->
+<!--                    <div class="flex justify-center gap-x-6 mt-3">-->
+<!--                        <NuxtLink-->
+<!--                            class="group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-600 text-white hover:text-slate-100 hover:bg-blue-500 active:bg-blue-800 active:text-blue-100 focus-visible:outline-blue-600 relative mt-2 md:mt-0"-->
+<!--                            to="/users/product">-->
+<!--                            <div class="flex items-center gap-2">-->
+<!--                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"-->
+<!--                                     stroke="currentColor" aria-hidden="true" class="h-6 w-6">-->
+<!--                                    <path stroke-linecap="round" stroke-linejoin="round"-->
+<!--                                          d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>-->
+<!--                                </svg>-->
+<!--                                <span class="mr-0.5 whitespace-nowrap">创建应用</span></div>-->
+<!--                        </NuxtLink>-->
+<!--                        <NuxtLink-->
+<!--                            v-if="token"-->
+<!--                            class="group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 bg-yellow-500 text-white hover:text-slate-100 hover:bg-yellow-400 active:bg-yellow-800 active:text-yellow-100 focus-visible:outline-yellow-600 relative mt-2 md:mt-0"-->
+<!--                            to="/me_application">-->
+<!--                            <div class="flex items-center gap-2">-->
+<!--                                <svg t="1684147730534" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2967" width="18" height="18"><path d="M512 4.096C231.424 4.096 4.096 231.424 4.096 512s227.328 508.416 508.416 508.416 508.416-227.328 508.416-508.416S792.576 4.096 512 4.096z m0 941.568c-239.616 0-433.664-194.048-433.664-433.664S272.384 78.336 512 78.336s433.664 194.048 433.664 433.664-194.048 433.664-433.664 433.664z" fill="#ffffff" p-id="2968"></path><path d="M596.992 348.672c-35.328 0-66.048 17.408-84.992 44.032-18.944-25.6-49.664-42.496-83.968-42.496-57.856 0-104.448 46.592-104.448 104.448 0 28.16 11.264 53.248 29.184 72.192l1.536 1.536L511.488 686.08l159.232-159.232c18.944-18.944 30.72-45.056 30.72-73.728 0-57.856-46.592-104.448-104.448-104.448z" fill="#ffffff" p-id="2969"></path></svg>-->
+<!--                                <span class="mr-0.5 whitespace-nowrap">我的收藏</span></div>-->
+<!--                        </NuxtLink>-->
+<!--                    </div>-->
                 </h1>
 
                 <div class="mb-10 items-center justify-between pt-5 sm:pt-0 ">
