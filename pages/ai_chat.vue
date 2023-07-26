@@ -263,16 +263,16 @@
                                                         </template>
                                                         预设配置
                                                     </a-tag>
-                                                    <a-tag color="orange" v-if="me_message.length>0">
-                                                        {{ me_message.length*2 }}条消息
-                                                    </a-tag>
+<!--                                                    <a-tag color="orange" v-if="me_message.length>0">-->
+<!--                                                        {{ me_message.length*2 }}条消息-->
+<!--                                                    </a-tag>-->
 
-                                                        <a-dropdown @select="handleSelect" :popup-max-height="false">
-                                                            <a-tag color="green" class="cursor-pointer">{{ now_model_title }}</a-tag>
-                                                            <template #content>
-                                                                <a-doption v-for="(n_mod,n_mod_index) in model_list" :key="n_mod_index" :value="n_mod_index">{{ n_mod.title }}</a-doption>
-                                                            </template>
-                                                        </a-dropdown>
+<!--                                                        <a-dropdown @select="handleSelect" :popup-max-height="false">-->
+<!--                                                            <a-tag color="green" class="cursor-pointer">{{ now_model_title }}</a-tag>-->
+<!--                                                            <template #content>-->
+<!--                                                                <a-doption v-for="(n_mod,n_mod_index) in model_list" :key="n_mod_index" :value="n_mod_index">{{ n_mod.title }}</a-doption>-->
+<!--                                                            </template>-->
+<!--                                                        </a-dropdown>-->
 
                                                 </a-space>
 

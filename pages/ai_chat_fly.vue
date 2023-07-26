@@ -263,9 +263,9 @@
                                                     </template>
                                                     预设配置
                                                 </a-tag>
-                                                <a-tag color="orange" v-if="me_message.length>0">
-                                                    {{ me_message.length*2 }}条消息
-                                                </a-tag>
+<!--                                                <a-tag color="orange" v-if="me_message.length>0">-->
+<!--                                                    {{ me_message.length*2 }}条消息-->
+<!--                                                </a-tag>-->
 
                                             </a-space>
 
