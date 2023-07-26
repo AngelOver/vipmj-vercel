@@ -184,6 +184,7 @@ import {
 import {color} from "d3-color";
 const token = useCookie('token')
 
+
 const counter = useCounter()
 const colorMode = useColorMode()
 const login_dialog = ref(false)
@@ -232,5 +233,14 @@ const onCollapse = (val, type) => {
     const content = type === 'responsive' ? '触发响应式收缩' : '点击触发收缩';
     collapsed.value = val;
 }
+
+
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6748f5fc0919b51abf8d3507fcfe6548";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
 
 </script>
