@@ -2,12 +2,14 @@
     <div class="ai_draw_ground">
 
         <main class=" main overflow-auto">
-            <div class="draw_bg"  :style="{backgroundImage:'url('+new_draw_bg+')'}">
+            <div class="draw_bg">
+              <iframe style="border-width: 0;height: 100%;position: absolute;top: 0;width: 100%" scrolling="no" src="https://qiniuchat.littlewheat.com/static/io-fx10.html"></iframe>
                 <span class="bot_boxshadow"></span>
                 <div class="container pt-44">
                     <h1 class="header_title text-center mb-5">
-                        别限制于你的想象力
+                      华丽的艺术作品
                     </h1>
+
                     <a-space class="justify-center w-full">
                         <a-select v-model="draw_cate" size="large" placeholder="请选择..." @change="cate_change">
                             <a-option value="all_draw" >全部</a-option>
