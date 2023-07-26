@@ -10,7 +10,7 @@
                       华丽的艺术作品
                     </h1>
 
-                    <a-space class="justify-center w-full">
+                    <a-space class="justify-center w-full" style="position: relative;">
                         <a-select v-model="draw_cate" size="large" placeholder="请选择..." @change="cate_change">
                             <a-option value="all_draw" >全部</a-option>
                             <a-option :value="cate.other" v-for="(cate,c_index) in draw_cate_all" :key="c_index">{{ cate.title }}</a-option>
