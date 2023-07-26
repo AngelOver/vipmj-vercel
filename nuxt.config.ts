@@ -16,7 +16,7 @@ export default defineNuxtConfig({
     app: {
 
         head: {
-           title: '聊天学习交流 - 免费AI问答',
+           title: '1Chat问答绘图',
             meta: [
                 { charset: 'utf-8' },
                 { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' },
