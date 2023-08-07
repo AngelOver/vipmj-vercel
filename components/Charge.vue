@@ -119,7 +119,9 @@
                             </template>
                         </a-radio-group>
                     </a-form-item>
-
+                  <a-form-item label="问答卡权限">
+                    问答 无限次 = 9999次（无限续加） 绘画赠送99次
+                  </a-form-item>
                   <a-form-item label="会员权限">
                     全站解锁 问答、绘画无限次数 = 9999次（无限续加）
                   </a-form-item>
@@ -158,7 +160,7 @@ import QrcodeVue from "qrcode.vue";
 import {useCounter} from '~/store/counter'
 import {Message} from "@arco-design/web-vue";
 import {IconCheck, IconClose} from "@arco-design/web-vue/es/icon";
-const activeName = ref('first')
+const activeName = ref('second')
 
 const counter = useCounter()
 const props = defineProps({
