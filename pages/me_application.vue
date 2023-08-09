@@ -118,7 +118,7 @@ import {Message} from '@arco-design/web-vue'
 import {useCounter} from "~/store/counter";
 import {IconStar} from "@arco-design/web-vue/es/icon";
 definePageMeta({
-    middleware: ['islogin','mustlogin']
+    middleware: ['islogin']
 })
 const page = ref(1)
 const limit = ref(8)
