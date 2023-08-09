@@ -117,7 +117,7 @@
                                 <icon-user/>
                                 个人信息
                             </template>
-                            <div class="row">
+                            <div class="row pb-10">
                                 <div class="col-6 a-col-12">
                                     <div class="mb-2">
                                         <div class="card-body">
@@ -161,7 +161,7 @@
                                                              placeholder="请输入验证码" autocomplete="off">
                                                     </a-input>
                                                     <a-button :loading="send_wait" type="primary"
-                                                              @click="send_p_code()">
+                                                              @click="check_verify('phone')">
                                                         {{ send_code_text }}
                                                     </a-button>
 
@@ -189,7 +189,7 @@
                                                              placeholder="请输入验证码" autocomplete="off">
                                                     </a-input>
                                                     <a-button :loading="send_wait" type="primary"
-                                                              @click="send_e_code()">
+                                                              @click="check_verify('email')">
                                                         {{ send_code_text }}
                                                     </a-button>
                                                 </a-space>
@@ -203,6 +203,17 @@
                                                             </a-button>
                                                           </span>
                                         </template>
+                                    </a-modal>
+                                    <a-modal class="pic_cap" v-model:visible="captcha_v" title="图形验证" :footer="false">
+                                        <slide-verify
+                                            ref="block"
+                                            slider-text="拖拽滑动"
+                                            @again="onAgain"
+                                            @success="onSuccess"
+                                            @fail="onFail"
+                                            class="m-auto"
+                                            @refresh="onRefresh"
+                                        ></slide-verify>
                                     </a-modal>
                                     <!--new mode-->
                                     <div class="card-body">
@@ -543,7 +554,6 @@
                                                         <a-button
                                                             type="primary"
                                                             @click="up_vip_dialog()"
-                                                            v-if="counter.setting.pay_wechat_open==1 || counter.setting.pay_alipay_open==1"
                                                         >升级
                                                         </a-button>
                                                     </div>
@@ -953,14 +963,22 @@
                                     :class="{ 'custom-radio-card-checked': checked }"
                                 >
                                     <div className="custom-radio-card-mask">
-                                        <div className="custom-radio-card-mask-dot"/>
+                                        <div className="custom-radio-card-mask-dot" />
                                     </div>
                                     <div>
-                                        <div className="custom-radio-card-title">
+                                        <div>
+                                            {{ item.end_time }} 天
+                                        </div>
+                                        <div className="custom-radio-card-title mt-2">
                                             {{ item.title }}
                                         </div>
+                                        <div>
+                                            <p>每日问答:{{item.limit_send}}</p>
+                                            每日绘画:{{item.limit_draw}}
+                                        </div>
+
                                         <a-typography-text type="secondary">
-                                            ￥{{ item.pay_amount }}
+                                            {{ item.pay_amount }}
                                         </a-typography-text>
                                     </div>
                                 </a-space>
@@ -1009,7 +1027,7 @@
                         :action="actions"
                         :show-file-list="false"
                         :headers="{'Authorization': 'Bearer ' + token}"
-                        @success="onSuccess"
+                        @success="onSuccessUp"
                         @before-upload="beforeUpload"
                     >
 
@@ -1094,6 +1112,9 @@
     <Wechat :change_wechat="change_wechat" @handleCancel="handleCancel" />
 </template>
 <script setup lang="ts">
+import SlideVerify, {SlideVerifyInstance} from "vue3-slide-verify";
+import "vue3-slide-verify/dist/style.css";
+
 definePageMeta({
     middleware: ['islogin']
 })
@@ -1175,6 +1196,85 @@ const sigt_out = () => {
     router.push('/')
 }
 const sign_all = ref([])
+import cap_1 from '~/assets/images/captcha-1.png'
+import cap_2 from '~/assets/images/captcha.png'
+import cap_3 from '~/assets/images/captcha-2.png'
+const imgs= ref([
+    cap_1,
+    cap_2,
+    cap_3
+])
+const msg = ref("");
+const block = ref<SlideVerifyInstance>();
+
+const onAgain = () => {
+    Message.error("检测到非人为操作的哦！ try again");
+    // 刷新
+    block.value?.refresh();
+};
+const captcha_v = ref(false)
+const verify_code = ref('')
+const flesh_type=  ref('email')
+const check_verify = (type:any)=>{
+    flesh_type.value = type
+    if (type =='email'){
+        if (email_form.email == '') {
+            Message.error('请填写邮箱')
+            return
+        }
+        generate_cap({
+            type: 'email',
+            email: email_form.email
+        }).then((res: any) => {
+            if (res._rawValue.status == 200) {
+                block.value?.refresh();
+                captcha_v.value = true
+                verify_code.value = res._rawValue.data
+            }
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }else{
+        if (phone_form.phone == '') {
+            Message.error('请填写手机号')
+            return
+        }
+        generate_cap({
+            type: 'phone',
+            phone: phone_form.phone
+        }).then((res: any) => {
+            if (res._rawValue.status == 200) {
+                block.value?.refresh();
+                captcha_v.value = true
+                verify_code.value = res._rawValue.data
+            }
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }
+}
+const onSuccess = (times: number) => {
+    captcha_v.value = false
+    if (flesh_type.value=='email'){
+        send_e_code();
+    }else{
+        send_p_code();
+    }
+};
+
+const onFail = () => {
+    Message.error("验证不通过");
+};
+
+const onRefresh = () => {
+    Message.info("刷新图形");
+};
+
+const handleClick = () => {
+    // 刷新
+    block.value?.refresh();
+    msg.value = "";
+};
 const formatTime = (time: any) => {
     const date = new Date(time)
     const year = date.getFullYear()
@@ -1248,6 +1348,8 @@ const consum_type = (type:any)=>{
             return 'PDF转换'
         case 'fly':
             return '星火'
+        case 'baidu':
+            return '百度'
     }
 }
 const consum = ref([])
@@ -1326,7 +1428,7 @@ const c_pass = () => {
 const dialogFormVisible = ref(false)
 const form = reactive({
     amount: counter.setting.min_recharge ? parseInt(counter.setting.min_recharge) : 1,
-    pay_type: counter.setting.pay_wechat_open == 1 ? 'wechat' : 'alipay',
+    pay_type: counter.setting.pay_wechat_open == 1 ? 'wechat' : (counter.setting.pay_alipay_open == 1 ? 'alipay' : 'balance'),
     vip_type: 1,
     kami: '',
 })
@@ -1614,7 +1716,7 @@ const change_code = () => {
     })
 }
 
-const onSuccess = (currentFile) => {
+const onSuccessUp = (currentFile) => {
     // 获取currentFile里的response的data值
     if (currentFile.response.status != 200) {
         Message.error('上传失败!')
@@ -1680,6 +1782,7 @@ const send_p_code = () => {
     send_wait.value = true
     send_phone_code({
         phone: phone_form.phone,
+        verify_code: verify_code.value
     }).then((res: any) => {
         send_wait.value = true
         let time = 60
@@ -1707,6 +1810,7 @@ const send_e_code = () => {
     send_wait.value = true
     send_email({
         email: email_form.email,
+        verify_code: verify_code.value
     }).then((res: any) => {
         send_wait.value = true
         let time = 60

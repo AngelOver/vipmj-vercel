@@ -27,7 +27,6 @@ const token = useCookie('token');
 const get_config = () => {
     get_nav_config().then((res: any) => {
         counter.setting = res._rawValue.data;
-        console.log(res._rawValue.data.is_must_login)
         if (res._rawValue.data.is_must_login =='1' && !token.value){
             router.push('/login')
         }else{

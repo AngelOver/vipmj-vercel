@@ -1,5 +1,5 @@
 <template>
-    <div style="width: 260px; margin-left: 1px;"
+    <div style="width: 15%; margin-left: 1px;"
          class="flex h-full flex-col bg-[#fafbfc] chat-message-left ai_pdf_list"
     >
 

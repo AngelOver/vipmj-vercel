@@ -32,7 +32,7 @@
                                                 <a-input
                                                          v-model="ruleForm.email_code"
                                                          placeholder="请填写您的邮箱验证码"/>
-                                                <a-button type="primary"  @click="send_code()">{{ send_code_text }}</a-button>
+                                                <a-button type="primary"  @click="check_verify('email')">{{ send_code_text }}</a-button>
 
                                             </a-space>
 
@@ -76,20 +76,20 @@
                                                 <a-input
                                                        v-model="ruleFormP.phone_code"
                                                        placeholder="请填写您的手机验证码" />
-                                                <a-button type="primary" @click="send_phone_codes()">{{ send_code_text }}</a-button>
+                                                <a-button type="primary" @click="check_verify('phone')">{{ send_code_text }}</a-button>
 
                                             </a-space>
 
 
                                         </a-form-item>
                                         <a-form-item field="password" :hide-label=true>
-                                                <a-input type="password" class="form-control form-control-lg"
+                                                <a-input type="password"
                                                        v-model="ruleFormP.password"
                                                        placeholder="填写您的密码" />
                                         </a-form-item>
 
                                         <a-form-item field="password" :hide-label=true>
-                                            <a-input type="password" class="form-control form-control-lg"
+                                            <a-input type="password"
                                                    v-model="ruleFormP.password_c"
                                                    placeholder="确认您的密码" />
                                         </a-form-item>
@@ -112,11 +112,24 @@
             </div>
         </div>
     </div>
+    <a-modal class="pic_cap" v-model:visible="captcha_v" title="图形验证" :footer="false">
+        <slide-verify
+            :imgs ="imgs"
+            ref="block"
+            slider-text="拖拽滑动"
+            @again="onAgain"
+            @success="onSuccess"
+            @fail="onFail"
+            class="m-auto"
+            @refresh="onRefresh"
+        ></slide-verify>
+    </a-modal>
 </template>
 
 <script setup lang="ts">
 import { useCounter } from '~/store/counter'
 const counter = useCounter()
+import SlideVerify, {SlideVerifyInstance} from "vue3-slide-verify";
 
 useHead({
     title: '重置密码 - '+counter.setting.title,
@@ -276,7 +289,8 @@ const send_code = () => {
     }
     send_email({
         email: ruleForm.email,
-        type: 'reset'
+        type: 'reset',
+        verify_code: verify_code.value
     }).then((res:any) => {
         if (res._rawValue.status==200){
             Message.success(res._rawValue.message)
@@ -293,7 +307,8 @@ const send_phone_codes = () => {
     }
     send_phone_code({
         phone: ruleFormP.phone,
-        type: 'reset'
+        type: 'reset',
+        verify_code: verify_code.value
     }).then((res:any) => {
         if (res._rawValue.status==200){
             Message.success(res._rawValue.message)
@@ -302,6 +317,85 @@ const send_phone_codes = () => {
         console.log(err)
     })
 }
+import cap_1 from '~/assets/images/captcha-1.png'
+import cap_2 from '~/assets/images/captcha.png'
+import cap_3 from '~/assets/images/captcha-2.png'
+const imgs= ref([
+    cap_1,
+    cap_2,
+    cap_3
+])
+const msg = ref("");
+const block = ref<SlideVerifyInstance>();
+
+const onAgain = () => {
+    Message.error("检测到非人为操作的哦！ try again");
+    // 刷新
+    block.value?.refresh();
+};
+const captcha_v = ref(false)
+const verify_code = ref('')
+const flesh_type=  ref('email')
+const check_verify = (type:any)=>{
+    flesh_type.value = type
+    if (type =='email'){
+        if (ruleForm.email == '') {
+            Message.error('请填写邮箱')
+            return
+        }
+        generate_cap({
+            type: 'email',
+            email: ruleForm.email
+        }).then((res: any) => {
+            if (res._rawValue.status == 200) {
+                block.value?.refresh();
+                captcha_v.value = true
+                verify_code.value = res._rawValue.data
+            }
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }else{
+        if (ruleFormP.phone == '') {
+            Message.error('请填写手机号')
+            return
+        }
+        generate_cap({
+            type: 'phone',
+            phone: ruleFormP.phone
+        }).then((res: any) => {
+            if (res._rawValue.status == 200) {
+                block.value?.refresh();
+                captcha_v.value = true
+                verify_code.value = res._rawValue.data
+            }
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }
+}
+const onSuccess = (times: number) => {
+    captcha_v.value = false
+    if (flesh_type.value=='email'){
+        send_code();
+    }else{
+        send_phone_codes();
+    }
+};
+
+const onFail = () => {
+    Message.error("验证不通过");
+};
+
+const onRefresh = () => {
+    Message.info("刷新图形");
+};
+
+const handleClick = () => {
+    // 刷新
+    block.value?.refresh();
+    msg.value = "";
+};
 </script>
 
 <style scoped>

@@ -3,12 +3,12 @@
 
         <a-tabs
             v-model="activeName"
-            default-active-key="second"
+            :default-active-key="activeName"
             class="demo-tabs"
             type="capsule"
             @tab-click="handleClick"
         >
-            <a-tab-pane :title="'充值'+counter.setting.money_name_set" key="first">
+            <a-tab-pane :title="'充值'+counter.setting.money_name_set" key="first" v-if="counter.setting.pay_wechat_open==1 || counter.setting.pay_alipay_open==1">
                 <a-spin :loading="qr_load">
                     <div class="qr_fing relative">
                         <div class="absolute pay_over" v-if="qr_show && pay_now_type!='paying'">
@@ -105,11 +105,19 @@
                                                 <div className="custom-radio-card-mask-dot" />
                                             </div>
                                             <div>
-                                                <div className="custom-radio-card-title">
+                                                <div>
+                                                    {{ item.end_time }} 天
+                                                </div>
+                                                <div className="custom-radio-card-title mt-2">
                                                     {{ item.title }}
                                                 </div>
+                                                <div>
+                                                    <p>每日问答:{{item.limit_send}}</p>
+                                                    每日绘画:{{item.limit_draw}}
+                                                </div>
+
                                                 <a-typography-text type="secondary">
-                                                    ￥{{ item.pay_amount }}
+                                                    {{ item.pay_amount }}
                                                 </a-typography-text>
                                             </div>
                                         </a-space>
@@ -120,7 +128,7 @@
                         </a-radio-group>
                     </a-form-item>
                   <a-form-item label="问答卡权限">
-                    问答 无限次 = 9999次（无限续加） 绘画赠送99次
+                    问答 无限次 = 9999次（无限续加） 绘画赠送9次
                   </a-form-item>
                   <a-form-item label="会员权限">
                     全站解锁 问答、绘画无限次数 = 9999次（无限续加）
@@ -135,8 +143,6 @@
                     <a-form-item label="优惠卷">
                         <a-input v-model="form.kami" placeholder="请输入优惠卷码"></a-input>
                     </a-form-item>
-
-
                 </a-form>
             </a-tab-pane>
         </a-tabs>
@@ -160,7 +166,6 @@ import QrcodeVue from "qrcode.vue";
 import {useCounter} from '~/store/counter'
 import {Message} from "@arco-design/web-vue";
 import {IconCheck, IconClose} from "@arco-design/web-vue/es/icon";
-const activeName = ref('second')
 
 const counter = useCounter()
 const props = defineProps({
@@ -172,6 +177,8 @@ const props = defineProps({
 const handleClick = (tab:any) => {
     activeName.value = tab
 }
+const activeName = ref(counter.setting.pay_wechat_open==1 || counter.setting.pay_alipay_open==1?'second':'first')
+
 const pay_now_type = ref('paying')
 const start = ref(false)
 const handleFinish = () => {
@@ -199,8 +206,8 @@ const charge_loading = ref(false)
 const qr_show = ref(false)
 const form = reactive({
     amount:counter.setting.min_recharge?parseInt(counter.setting.min_recharge):1,
-    pay_type:counter.setting.pay_wechat_open == 1 ? 'wechat' : 'alipay',
-    vip_type:1,
+    pay_type:counter.setting.pay_wechat_open == 1 ? 'wechat' : (counter.setting.pay_alipay_open == 1 ? 'alipay' : 'balance'),
+    vip_type:2,
     kami:'',
 })
 watch(() => form.amount, (val) => {

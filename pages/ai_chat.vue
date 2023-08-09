@@ -1,5 +1,5 @@
 <template>
-    <div style="width: 260px; margin-left: 1px;"
+    <div style="width: 15%; margin-left: 1px;"
                     class="flex h-full flex-col bg-[#fafbfc] chat-message-left relative"
          :class="!chat_open?'is_open':''"
     >
@@ -9,7 +9,7 @@
         </a-button>
             <a-space class="p-2  bg-white">
                 <a-input-search v-model="qs_input" @search="qs_search" @keydown.enter.native="qs_search" placeholder="搜索..."/>
-                <a-button type="primary" @click="check_message(0)">
+                <a-button type="primary" @click="add_new_chat()">
                     <icon-plus />
                 </a-button>
 
@@ -58,12 +58,12 @@
                                                         }}
                                                     </h6>
                                                     <h6 class="text-truncate mb-0 me-auto" v-else>{{
-                                                            item[item.length - 1].question
+                                                            item[item.length - 1].question?item[item.length - 1].question:'新会话'
                                                         }}
                                                     </h6>
 
                                                 </div>
-                                                <div class="text-truncate h-20" v-html="item[item.length - 1].message.replace(/\n/g, '<br />')"></div>
+                                                <div class="text-truncate h-20" v-html="item[item.length - 1].message?item[item.length - 1].message.replace(/\n/g, '<br />'):'暂无消息'"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -127,7 +127,7 @@
                                     <div class="caption1 font-semibold text-n-3/50 text-truncate">额度:{{ user_info.money }}</div>
                                 </div>
                                 <div
-                                    class="shrnik-0 ml-auto self-start px-3 bg-primary-2 rounded-lg caption1 font-bold text-n-7 pack_tag_vip">
+                                    class="shrnik-0 ml-auto self-start px-2 bg-primary-2 rounded-lg caption1 font-bold text-n-7 pack_tag_vip">
                                     {{ vip_level }}
                                 </div>
                             </div>
@@ -249,11 +249,11 @@
                                         </div>
                                         <div class="media-body overflow-hidden">
                                             <div class="d-flex align-items-center mb-1">
-
+                                                <!--header question-->
                                                 <h6 class="text-truncate mb-0 me-auto" v-if="ms_active==0">
                                                     {{ counter.setting.bot_name }}</h6>
                                                 <h6 class="mobile_width_5rem text-truncate mb-0 me-auto w-40"
-                                                    v-if="me_message.length>0">{{ me_message[0].question }} </h6>
+                                                    v-if="me_message.length>0">{{ me_message[0].question?me_message[0].question:'新会话' }} </h6>
                                             </div>
                                             <div class="text-truncate">
                                                 <a-space>
@@ -263,16 +263,25 @@
                                                         </template>
                                                         预设配置
                                                     </a-tag>
-<!--                                                    <a-tag color="orange" v-if="me_message.length>0">-->
-<!--                                                        {{ me_message.length*2 }}条消息-->
-<!--                                                    </a-tag>-->
+                                                    <a-tag color="orange" v-if="me_message.length>0">
+                                                        {{ me_message.length*2 }}条消息
+                                                    </a-tag>
 
-<!--                                                        <a-dropdown @select="handleSelect" :popup-max-height="false">-->
-<!--                                                            <a-tag color="green" class="cursor-pointer">{{ now_model_title }}</a-tag>-->
-<!--                                                            <template #content>-->
-<!--                                                                <a-doption v-for="(n_mod,n_mod_index) in model_list" :key="n_mod_index" :value="n_mod_index">{{ n_mod.title }}</a-doption>-->
-<!--                                                            </template>-->
-<!--                                                        </a-dropdown>-->
+                                                        <a-dropdown @select="handleSelect" :popup-max-height="false">
+                                                            <a-tag color="green" class="cursor-pointer">{{ now_model_title }}</a-tag>
+                                                            <template #content>
+                                                                <div v-if="counter.setting.gpt_new_qs_open=='1' && model_big_choose=='gpt'">
+                                                                    <a-doption v-for="(n_mod,n_mod_index) in model_list" :key="n_mod_index" :value="n_mod_index">{{ n_mod.title }}</a-doption>
+                                                                </div>
+                                                                <div v-if="counter.setting.fly_qs_open=='1' && model_big_choose=='fly'">
+                                                                    <a-doption value="xf">XF-Cloud</a-doption>
+                                                                </div>
+                                                                <div v-if="counter.setting.wenxin_baidu_open=='1' && model_big_choose=='baidu'">
+                                                                    <a-doption value="ErnieBot">Ernie-Bot</a-doption>
+                                                                    <a-doption value="ErnieBotTurbo">Ernie-Bot-turbo</a-doption>
+                                                                </div>
+                                                            </template>
+                                                        </a-dropdown>
 
                                                 </a-space>
 
@@ -408,7 +417,7 @@
 
                         <!--no message show-->
                         <div class="flex flex-column">
-                            <div class="m-auto rounded-md p-4" v-if="ms_active==0 && me_message.length==0">
+                            <div class="m-auto rounded-md p-4" v-if="ms_active==0 && me_message.length==0 || (me_message.length==1 && me_message[0].question==null && me_message[0].message==null )">
                                 <h1 class="mb-6 rounded px-4 py-2 text-center text-3xl font-bold">
                                     {{ counter.setting.title }}</h1>
                                 <div class="w-full md:min-w-[450px]">
@@ -417,7 +426,7 @@
                                         <div class="wrap_portal">
                                             <a-row class="grid-demo w-100">
                                                 <a-col :xs="{span: 24}" :lg="{span: 6}" class="list-animation-leftIn" :class="'delay-'+ocp_index" v-for="(ocp,ocp_index) in scene_p_model">
-                                                    <div class="card_b" @click="selectedItem(ocp.Instruction)">
+                                                    <div class="card_b" @click="selectedItems(ocp.Instruction,ocp.preset)">
                                                         <div class="card_b__top">
                                                             <a-avatar class="opacity-100"
                                                                       :imageUrl="ocp.icon"
@@ -457,19 +466,19 @@
                                 <!--qs-->
 
                                 <div class="message_s" v-for="(item,index) in me_message" :key="index">
-                                    <li class="d-flex message right">
+                                    <li class="d-flex message right"  v-if="item.question">
                                         <div class="message-body">
                                     <span class="date-time text-muted">{{ item.created_at }}
                                         </span>
                                             <div
                                                 class="message-row d-flex align-items-center justify-content-end">
-                                                <div class="message-content me_content border p-3" v-html="renderMarkdown(item.question).replace(/\\n/g, '\n')">
+                                                <div class="message-content me_content border p-3" v-html="item.question?renderMarkdown(item.question).replace(/\\n/g, '\n'):''">
                                                 </div>
                                             </div>
                                         </div>
                                     </li>
 
-                                    <li class="d-flex message">
+                                    <li class="d-flex message"  v-if="item.message">
 
                                         <div class="mr-lg-3 me-2">
                                             <a-avatar class="mr-2" >
@@ -485,18 +494,19 @@
                                             </a-avatar>
                                         </div>
 
-                                        <div class="message-body">
+                                        <div class="message-body" >
                                             <span class="date-time text-muted">{{ item.created_at }}</span>
                                             <div class="message-row relative d-flex flex-column align-items-start">
 
                                                 <div class="message-content p-3"
                                                      :class="index==me_message.length-1 && !is_done?'ms-up':''"
-                                                     v-html="renderMarkdown(item.message).replace(/\\n/g, '\n')">
+
+                                                     v-html="item.message?renderMarkdown(item.message).replace(/\\n/g, '\n'):''">
                                                 </div>
                                                 <div class="message_content_footer">
                                                     <a-space class="ml-4">
                                                         <div class="speak btn z-10 new_ant_btn h-30"
-                                                             @click="speak_is_audio?stop_speak():speak(item.message.replace(/\\n/g, '\n'))">
+                                                             @click="speak_is_audio?stop_speak():speak(item.message?item.message.replace(/\\n/g, '\n'):'')">
                                                             <icon-voice/>
                                                             <span class="ant_hide">{{ speak_is_audio ? '停止' : '朗读' }}</span>
 
@@ -507,17 +517,17 @@
                                                             <span class="ant_hide">重新生成</span>
                                                         </div>
                                                         <div class="speak btn z-10 new_ant_btn h-30"
-                                                            @click="handleClick(item.message.replace(/\\n/g, '\n'))">
+                                                            @click="handleClick(item.message?item.message.replace(/\\n/g, '\n'):'')">
                                                             <icon-copy />
                                                             <span class="ant_hide">复制答案</span>
                                                         </div>
                                                         <div class="speak btn z-10 new_ant_btn h-30"
-                                                            @click="exportWord(item.message.replace(/\\n/g, '\n'))">
+                                                            @click="exportWord(item.message?item.message.replace(/\\n/g, '\n'):'')">
                                                             <icon-share-internal />
                                                             <span class="ant_hide">导出Word</span>
                                                         </div>
                                                         <div class="speak btn z-10 new_ant_btn h-30"
-                                                            @click="exportPdf(item.message.replace(/\\n/g, '\n'))">
+                                                            @click="exportPdf(item.message?item.message.replace(/\\n/g, '\n'):'')">
                                                             <icon-download />
                                                             <span class="ant_hide">导出PDF</span>
                                                         </div>
@@ -568,18 +578,34 @@
                                                                 minRows:1,
                                                                 maxRows:4
                                                               }"
-                                                        @keydown.enter.native.prevent="counter.setting.no_login_aiqs=='1' && !token? submitFormNoLogin() : submitForm()"
+                                                        @keydown.enter.native.prevent="check_sub()"
                                                         show-word-limit/>
                                         <a-space>
                                             <a-button
                                                 @click="change_online()"
-                                                v-if="counter.setting.online_is_open=='1'"
+                                                v-if="counter.setting.online_is_open=='1' && model_big_choose=='gpt'"
                                                 :type="online_open?'primary':'secondary'" :loading="send_loading"
                                                 :style="{marginLeft:'10px'}">
                                                 <icon-public class="text-lg"/>
                                             </a-button>
                                             <a-button
+                                                v-if="model_big_choose=='gpt'"
+                                                class="ml-1"
                                                 @click="counter.setting.no_login_aiqs=='1' && !token? submitFormNoLogin() : submitForm()"
+                                                type="primary" :loading="send_loading">
+                                                <icon-send class="text-lg"/>
+                                            </a-button>
+                                            <a-button
+                                                v-if="model_big_choose=='fly'"
+                                                class="ml-1"
+                                                @click="submitFormFly()"
+                                                type="primary" :loading="send_loading">
+                                                <icon-send class="text-lg"/>
+                                            </a-button>
+                                            <a-button
+                                                v-if="model_big_choose=='baidu'"
+                                                class="ml-1"
+                                                @click="submitFormBaidu()"
                                                 type="primary" :loading="send_loading">
                                                 <icon-send class="text-lg"/>
                                             </a-button>
@@ -628,7 +654,6 @@
         <a-modal
             v-model:visible="scene_preset"
             title="场景预设"
-            width="30%"
             append-to-body
             class="mb_dialog"
         >
@@ -669,10 +694,24 @@
         <template #title>
             预设配置
         </template>
-        <h6 class="mb-3">模型选择</h6>
-        <a-radio-group class="mb-3 flex-wrap" v-model="model_is_select" type="button">
-            <a-radio v-for="(mod,mod_index) in model_list" :value="mod.model">{{ mod.title }}</a-radio>
+        <h6 class="mb-3">大模型选择</h6>
+        <a-radio-group class="mb-3 flex-wrap" v-model="model_big_choose" type="button">
+            <a-radio v-if="counter.setting.gpt_new_qs_open=='1'" value="gpt">AI大模型</a-radio>
+            <a-radio v-if="counter.setting.fly_qs_open=='1'" value="fly">星火大模型</a-radio>
+            <a-radio v-if="counter.setting.wenxin_baidu_open=='1'" value="baidu">文心大模型</a-radio>
+        </a-radio-group>
 
+        <h6 class="mb-3">模型选择</h6>
+        <a-radio-group class="mb-3 flex-wrap" v-model="model_is_select" type="button" v-if="model_big_choose=='gpt'">
+            <a-radio v-for="(mod,mod_index) in model_list" :key="mod_index" :value="mod.model">{{ mod.title }}</a-radio>
+        </a-radio-group>
+        <a-radio-group class="mb-3 flex-wrap" v-model="model_is_select" type="button" v-if="model_big_choose=='fly'">
+            <a-radio value="xf">XF-Cloud</a-radio>
+
+        </a-radio-group>
+        <a-radio-group class="mb-3 flex-wrap" v-model="model_is_select" type="button" v-if="model_big_choose=='baidu'">
+            <a-radio value="ErnieBot">Ernie-Bot</a-radio>
+            <a-radio value="ErnieBotTurbo">Ernie-Bot-turbo</a-radio>
         </a-radio-group>
         <a-collapse class="mb-3 better_preview">
             <template #expand-icon="{ active }">
@@ -708,7 +747,7 @@
         <a-input-search v-model="scene_search" placeholder="请输入场景名称" @press-enter="scene_insearch()"
                         @search="scene_insearch()"/>
         <a-list :loading="scene_loading" :bordered=false>
-            <a-list-item @click="selectedItem(oc.Instruction)" class="cursor-pointer" v-for="(oc,oc_index) in scene_model"
+            <a-list-item @click="selectedItem(oc.Instruction,oc.preset)" class="cursor-pointer" v-for="(oc,oc_index) in scene_model"
                          :key="oc_index">
                 <a-list-item-meta
                     :title="oc.title"
@@ -740,7 +779,7 @@
             </span>
         </template>
     </a-modal>
-        <a-drawer
+    <a-drawer
             v-model:visible="drawer"
             placement="left"
             class="drawer_index"
@@ -760,7 +799,8 @@
                             <span @click="all_message()" class="py-0 border-0 text-muted" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <icon-refresh />
                             </span>
-                            全部消息</p>
+                            全部消息
+                        </p>
                         <ul class="chat-list mb-2">
                             <div class="bot_info">
                                 <li class="online" :class="ms_active==item[item.length-1].session_id?'active':''"
@@ -797,13 +837,14 @@
                                                                 item[item.length - 1].message_b
                                                             }}
                                                         </h6>
+
                                                         <h6 class="text-truncate mb-0 me-auto" v-else>{{
-                                                                item[item.length - 1].question
+                                                                item[item.length - 1].question?item[item.length - 1].question:'新会话'
                                                             }}
                                                         </h6>
 
                                                     </div>
-                                                    <div class="text-truncate h-20" v-html="item[item.length - 1].message.replace(/\n/g, '<br />')"></div>
+                                                    <div class="text-truncate h-20" v-html="item[item.length - 1].message?item[item.length - 1].message.replace(/\n/g, '<br />'):''"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1039,7 +1080,7 @@
 
                                                     <div class="message-content p-3"
                                                          :class="index==me_message.length-1 && !is_done?'ms-up':''"
-                                                         v-html="renderMarkdown(item.message).replace(/\\n/g, '\n')">
+                                                         v-html="item.message?renderMarkdown(item.message).replace(/\\n/g, '\n'):''">
                                                     </div>
 
                                                 </div>
@@ -1070,6 +1111,8 @@ import markdownItKatex from 'markdown-it-katex'
 import fileSaver from 'file-saver';
 import {asBlob} from 'html-docx-js-typescript'
 import Speech from 'speak-tts'
+
+
 import {
     IconEdit,
     IconDelete,
@@ -1100,9 +1143,10 @@ import { toPng,toJpeg} from 'html-to-image';
 const img_download = ref(false)
 const counter = useCounter()
 const chat_open = ref(true)
-//definePageMeta({
-//middleware: ['mustlogin']
-//})
+definePageMeta({
+  middleware: ['mustlogin']
+})
+
 const renderMarkdown = (markdown: any) => {
     return markdownIt({
         linkify: true, // 添加linkify插件
@@ -1130,6 +1174,7 @@ useHead({
     ],
 
 })
+
 const login_dialog = ref(false)
 const login_dialog_click = () => {
     login_dialog.value = true
@@ -1145,7 +1190,19 @@ const charge = () => {
 const handleCancels = () => {
     dialogFormVisible.value = false
 }
-
+const model_big_choose = ref(counter.setting.gpt_new_qs_open == '1' ? 'gpt' : counter.setting.fly_qs_open == '1' ? 'fly' : 'baidu')
+watch(model_big_choose, (val) => {
+    if (val == 'gpt') {
+        model_is_select.value = model_list.value[0].model
+        now_model_title.value = model_list.value[0].title
+    } else if (val == 'fly') {
+        model_is_select.value = 'xf'
+        now_model_title.value = 'XF-Cloud'
+    } else if (val == 'baidu') {
+        model_is_select.value = 'ErnieBot'
+        now_model_title.value = 'Ernie-Bot'
+    }
+})
 
 const token = useCookie('token')
 const router = useRouter();
@@ -1349,6 +1406,23 @@ const change_status = ref(true)
 const model_list = ref([]) as any
 const model_is_select = ref()
 const scene_p_model = ref([]) as any
+watch(model_is_select, (val) => {
+    if (val == 'ErnieBot') {
+        now_model_title.value = 'Ernie-Bot'
+    } else if (val == 'ErnieBotTurbo') {
+        now_model_title.value = 'Ernie-Bot-turbo'
+    } else if (val == 'xf') {
+        now_model_title.value = 'XF-Cloud'
+    } else {
+        const model = Object.values(model_list.value)
+        for (let i = 0; i < model.length; i++) {
+            if (model[i].model == val) {
+                now_model_title.value = model[i].title
+            }
+        }
+
+    }
+})
 const scene_all = () => {
     get_scene_f({
         page: s_page.value,
@@ -1358,8 +1432,20 @@ const scene_all = () => {
         scene_p_model.value = res._rawValue.p_data
         scene_count.value = res._rawValue.count
         model_list.value = res._rawValue.model
-        model_is_select.value = res._rawValue.model[0].model
-        now_model_title.value = res._rawValue.model[0].title
+        if (model_big_choose.value == 'gpt') {
+            model_is_select.value = res._rawValue.model[0].model
+        } else if (model_big_choose.value == 'fly') {
+            model_is_select.value = 'xf'
+        } else if (model_big_choose.value == 'baidu') {
+            model_is_select.value = 'ErnieBot'
+        }
+        if (model_big_choose.value == 'gpt') {
+            now_model_title.value = res._rawValue.model[0].title
+        } else if (model_big_choose.value == 'fly') {
+            now_model_title.value = 'xf'
+        } else if (model_big_choose.value == 'baidu') {
+            now_model_title.value = 'ErnieBot'
+        }
     }).catch((err: any) => {
         console.log(err)
     })
@@ -1490,6 +1576,14 @@ const check_message = (id: number) => {
         down_message()
     }).catch((err: any) => {
         loadins.value = false
+    })
+}
+const add_new_chat = () => {
+    add_chat().then((res: any) => {
+        all_message()
+        check_message(res._rawValue.data)
+    }).catch((err: any) => {
+        Message.error(err.message)
     })
 }
 const normal_message = ref([])
@@ -1656,11 +1750,11 @@ const submitForm = async () => {
 
             for (let i = 0; i < arr.length; i++) {
                 is_done.value = false
-                if (arr[i].slice(-2) == ']}' && arr[i].startsWith('data:')) {
+                if ((arr[i].slice(-2) == ']}' || arr[i].slice(-2) == 'l}') && arr[i].startsWith('data:')) {
                     new_arr.push(JSON.parse(arr[i].replace('data:', '')));
-                } else if (arr[i].startsWith('data:') && arr[i].slice(-2) != ']}') {
+                } else if (arr[i].startsWith('data:') && (arr[i].slice(-2) != ']}' || arr[i].slice(-2) != 'l}')) {
                     streams.value = arr[i].replace('data:', '');
-                } else if (arr[i].slice(-2) == ']}' && arr[i].startsWith('data:') == false) {
+                } else if ((arr[i].slice(-2) == ']}' || arr[i].slice(-2) == 'l}') && arr[i].startsWith('data:') == false) {
                     // 与streams.value拼接成一个字符串
                     let str = streams.value += arr[i]
                     new_arr.push(JSON.parse(str.replace('data:', '')))
@@ -1810,11 +1904,11 @@ const submitFormNoLogin = async () => {
         // console.log(arr)
         for (let i = 0; i < arr.length; i++) {
             is_done.value = false
-            if (arr[i].slice(-2) == ']}' && arr[i].startsWith('data:')) {
+            if ((arr[i].slice(-2) == ']}' || arr[i].slice(-2) == 'l}') && arr[i].startsWith('data:')) {
                 new_arr.push(JSON.parse(arr[i].replace('data:', '')));
-            } else if (arr[i].startsWith('data:') && arr[i].slice(-2) != ']}') {
+            } else if (arr[i].startsWith('data:') && (arr[i].slice(-2) != ']}' || arr[i].slice(-2) != 'l}')) {
                 streams.value = arr[i].replace('data:', '');
-            } else if (arr[i].slice(-2) == ']}' && arr[i].startsWith('data:') == false) {
+            } else if ((arr[i].slice(-2) == ']}' || arr[i].slice(-2) == 'l}') && arr[i].startsWith('data:') == false) {
                 // 与streams.value拼接成一个字符串
                 let str = streams.value += arr[i]
                 new_arr.push(JSON.parse(str.replace('data:', '')))
@@ -1944,8 +2038,16 @@ const change_side = () => {
 }
 const now_model_title = ref('')
 const handleSelect = (key: any) => {
-    now_model_title.value = model_list.value[key].title
-    model_is_select.value = model_list.value[key].model
+    if (model_big_choose.value == 'gpt') {
+        now_model_title.value = model_list.value[key].title
+        model_is_select.value = model_list.value[key].model
+    } else if (model_big_choose.value == 'fly') {
+        now_model_title.value = 'XF_Cloud'
+        model_is_select.value = 'xf'
+    } else if (model_big_choose.value == 'baidu') {
+        now_model_title.value = key
+        model_is_select.value = key
+    }
 }
 const dialog_scene = ref(false)
 const scene_search = ref('')
@@ -1963,11 +2065,39 @@ const scene_insearch = () => {
         Message.error(err.message)
     })
 }
-const selectedItem = (item: any) => {
+const selectedItem = (item: any,preset:any) => {
     ruleForm.message_input = item
     dialog_scene.value = false
+    const arrs = JSON.parse(preset)
+    SceneForm.domains = []
+    if (arrs == null || arrs=='') {
+        return
+    }
+    for (let i = 0; i < arrs.length; i++) {
+        SceneForm.domains.push({
+            key: Date.now(),
+            value: arrs[i].content,
+            sel: arrs[i].role,
+        })
+    }
+
+
 }
 
+const selectedItems = (item: any,preset:any) => {
+    ruleForm.message_input = item
+    dialog_scene.value = false
+    SceneForm.domains = []
+    for (let i = 0; i < preset.length; i++) {
+        SceneForm.domains.push({
+            key: Date.now(),
+            value: preset[i].content,
+            sel: preset[i].role,
+        })
+    }
+
+
+}
 const change_sname = (id: number) => {
     beizhu_info.value = true
     ms_active.value = id
@@ -2005,11 +2135,7 @@ const SceneForm = reactive<{
     domains: DomainItem[]
 }>({
     domains: [
-        {
-            key: 1,
-            value: '',
-            sel: 'system',
-        },
+
     ],
 })
 
@@ -2052,7 +2178,324 @@ const resetForm = (formEl: FormInstance | undefined) => {
     if (!formEl) return
     formEl.resetFields()
 }
+const check_sub = ()=>{
+    if(counter.setting.no_login_aiqs=='1' && !token){
+        submitFormNoLogin()
+    }else if(model_big_choose.value=='gpt'){
 
+        submitForm()
+    }else if(model_big_choose.value=='fly'){
+        submitFormFly()
+    }else if(model_big_choose.value=='baidu'){
+        submitFormBaidu()
+    }
+}
+const submitFormFly = async () => {
+    if (ruleForm.message_input == '') {
+        Message.warning('请输入内容')
+        return false
+    }
+    if (event.shiftKey) {
+        // 按下shift键，插入换行符
+        ruleForm.message_input += "\n";
+        return false;
+    }
+    if (!token.value) {
+        Message.warning('请先登录')
+        login_dialog_click()
+        return false
+    }
+
+
+    send_loading.value = true
+    me_message.value.push({
+        "session_id": ms_active.value,
+        "question": ruleForm.message_input,
+        "message": "思考中...",
+    })
+    down_message()
+
+    const res = await fetch(`${baseUrl}api/send_fly_msg`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+            info: ruleForm.message_input,
+            session_id: ms_active.value,
+            scene_preset: SceneForm.domains,
+            model_is_select: model_is_select.value,
+            answer_num: answer_num.value,
+            answer_tem: answer_tem.value,
+        }),
+
+    })
+    up_stop.value = 'start'
+    if (res){
+        me_message.value[me_message.value.length - 1].message=''
+    }
+    if (res.status == 500) {
+        send_loading.value = false
+        Message.error('服务器错误')
+        return false
+    }
+    if (res.status == 401) {
+        send_loading.value = false
+        Message.error('请先登录')
+        return false
+    }
+    if (res.status == 402) {
+        send_loading.value = false
+        me_message.value[me_message.value.length - 1].message = '发送次数已达上限或余额不足'
+        Message.error('发送次数已达上限或余额不足')
+        return false
+    }
+    if (res.status == 403) {
+        send_loading.value = false
+        me_message.value[me_message.value.length - 1].message = '禁止发送违禁词'
+        Message.error('禁止发送违禁词')
+        return false
+    }
+    let reply_in = false;
+    const stream = res.body?.getReader();
+    const onData = ({value}: { value: Uint8Array }) => {
+        let result = new TextDecoder().decode(value);
+        console.log(result)
+        let arr = result.split('\n\n').map(str => str.replace(/\n/g, ''));
+        let new_arr: any[] = [];
+
+        for (let i = 0; i < arr.length; i++) {
+            is_done.value = false
+            if (arr[i].slice(-2) == '}}' && arr[i].startsWith('data:')) {
+                new_arr.push(JSON.parse(arr[i].replace('data:', '')));
+            } else if (arr[i].startsWith('data:') && arr[i].slice(-2) != ']}') {
+                streams.value = arr[i].replace('data:', '');
+            } else if (arr[i].slice(-2) == '}}' && arr[i].startsWith('data:') == false) {
+                // 与streams.value拼接成一个字符串
+                let str = streams.value += arr[i]
+                new_arr.push(JSON.parse(str.replace('data:', '')))
+                streams.value = ''
+            } else {
+                if (arr[i].includes('"error"')) {
+                    me_message.value[me_message.value.length - 1].message = JSON.parse(arr[i]).error.message
+                }
+                streams.value = ''
+            }
+
+
+            if (arr[i].includes('reply_content:')) {
+                reply_in = true;
+            }
+            if (reply_in) {
+                let replyContent = arr[i];
+                let content = replyContent.substring(14);
+                for (let i = 0; i < content.length; i++) {
+                    setTimeout(() => {
+                        me_message.value[me_message.value.length - 1].message += content.charAt(i)
+                        down_message()
+                    }, 1000)
+                }
+            }
+        }
+        for (let i = 0; i < new_arr.length; i++) {
+            setTimeout(() => {
+                if (new_arr[i].payload.choices.text[0].content) {
+                    me_message.value[me_message.value.length - 1].message += new_arr[i].payload.choices.text[0].content
+                }
+                down_message()
+            }, 100)
+
+        }
+
+    };
+
+
+    const read = async () => {
+        const result = await stream?.read();
+        if (up_stop.value == 'end') {
+            console.log('end')
+            up_stop.value = 'start'
+            stream?.cancel()
+            return false;
+        }
+        if (result?.done) {
+            console.log('done')
+            is_done.value = true
+            get_limit()
+            send_loading.value = false
+            ruleForm.message_input = ''
+            if (ms_active.value == 0) {
+                all_message()
+                setTimeout(() => {
+                    if (ms_active.value == 0) {
+                        ms_active.value = m_last.value.session_id
+                    }
+                    check_message(ms_active.value)
+                }, 2000)
+            }
+        } else {
+            send_loading.value = true
+            is_done.value = false
+            onData(result!);
+            await read();
+        }
+    };
+    await read();
+
+
+
+}
+const submitFormBaidu = async () => {
+    if (ruleForm.message_input == '') {
+        Message.warning('请输入内容')
+        return false
+    }
+    if (event.shiftKey) {
+        // 按下shift键，插入换行符
+        ruleForm.message_input += "\n";
+        return false;
+    }
+    if (!token.value) {
+        Message.warning('请先登录')
+        login_dialog_click()
+        return false
+    }
+
+
+    send_loading.value = true
+    me_message.value.push({
+        "session_id": ms_active.value,
+        "question": ruleForm.message_input,
+        "message": "思考中...",
+    })
+    down_message()
+
+    const res = await fetch(`${baseUrl}api/${model_is_select.value=='ErnieBot'?'run_baidu_send':'run_baidu_send_turbo'}`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+            info: ruleForm.message_input,
+            session_id: ms_active.value,
+            scene_preset: SceneForm.domains,
+            model_is_select: model_is_select.value,
+            answer_num: answer_num.value,
+            answer_tem: answer_tem.value,
+        }),
+
+    })
+    up_stop.value = 'start'
+    if (res){
+        me_message.value[me_message.value.length - 1].message=''
+    }
+    if (res.status == 500) {
+        send_loading.value = false
+        Message.error('服务器错误')
+        return false
+    }
+    if (res.status == 401) {
+        send_loading.value = false
+        Message.error('请先登录')
+        return false
+    }
+    if (res.status == 402) {
+        send_loading.value = false
+        me_message.value[me_message.value.length - 1].message = '发送次数已达上限或余额不足'
+        Message.error('发送次数已达上限或余额不足')
+        return false
+    }
+    if (res.status == 403) {
+        send_loading.value = false
+        me_message.value[me_message.value.length - 1].message = '禁止发送违禁词'
+        Message.error('禁止发送违禁词')
+        return false
+    }
+    let reply_in = false;
+    const stream = res.body?.getReader();
+    const onData = ({value}: { value: Uint8Array }) => {
+        let result = new TextDecoder().decode(value);
+        console.log(result)
+        let arr = result.split('\n\n').map(str => str.replace(/\n/g, ''));
+        let new_arr: any[] = [];
+
+        for (let i = 0; i < arr.length; i++) {
+            is_done.value = false
+            if (arr[i].slice(-2) == '}}' && arr[i].startsWith('data:')) {
+                new_arr.push(JSON.parse(arr[i].replace('data:', '')));
+            } else if (arr[i].startsWith('data:') && arr[i].slice(-2) != ']}') {
+                streams.value = arr[i].replace('data:', '');
+            } else if (arr[i].slice(-2) == '}}' && arr[i].startsWith('data:') == false) {
+                // 与streams.value拼接成一个字符串
+                let str = streams.value += arr[i]
+                new_arr.push(JSON.parse(str.replace('data:', '')))
+                streams.value = ''
+            } else {
+                if (arr[i].includes('"error_msg"')) {
+                    me_message.value[me_message.value.length - 1].message = JSON.parse(arr[i]).error_msg
+                }
+                streams.value = ''
+            }
+
+
+            if (arr[i].includes('reply_content:')) {
+                reply_in = true;
+            }
+            if (reply_in) {
+                let replyContent = arr[i];
+                let content = replyContent.substring(14);
+                for (let i = 0; i < content.length; i++) {
+                    setTimeout(() => {
+                        me_message.value[me_message.value.length - 1].message += content.charAt(i)
+                        down_message()
+                    }, 1000)
+                }
+            }
+        }
+        for (let i = 0; i < new_arr.length; i++) {
+            setTimeout(() => {
+                if (new_arr[i].result) {
+                    me_message.value[me_message.value.length - 1].message += new_arr[i].result
+                }
+                down_message()
+            }, 100)
+
+        }
+
+    };
+
+
+    const read = async () => {
+        const result = await stream?.read();
+        if (up_stop.value == 'end') {
+            console.log('end')
+            up_stop.value = 'start'
+            stream?.cancel()
+            return false;
+        }
+        if (result?.done) {
+            console.log('done')
+            is_done.value = true
+            get_limit()
+            send_loading.value = false
+            ruleForm.message_input = ''
+            if (ms_active.value == 0) {
+                all_message()
+                setTimeout(() => {
+                    if (ms_active.value == 0) {
+                        ms_active.value = m_last.value.session_id
+                    }
+                    check_message(ms_active.value)
+                }, 2000)
+            }
+        } else {
+            send_loading.value = true
+            is_done.value = false
+            onData(result!);
+            await read();
+        }
+    };
+    await read();
+
+
+
+}
 </script>
 <style>
 .v-align {

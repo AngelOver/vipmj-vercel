@@ -1,7 +1,7 @@
 {
     "private": true,
     "scripts": {
-        "build": "nuxt build",
+        "build": "node --max-old-space-size=2800 node_modules/nuxt/bin/nuxt.mjs build",
         "dev": "nuxt dev --mode dev",
         "prd": "nuxt dev --mode prd",
         "generate": "nuxt generate",
@@ -10,12 +10,12 @@
         "clean": "rm -rf dist"
     },
     "devDependencies": {
-        "@arco-design/web-vue": "^2.48.0",
+        "@arco-design/web-vue": "^2.49.1",
         "@nuxtjs/color-mode": "^3.3.0",
         "@nuxtjs/tailwindcss": "^6.8.0",
         "@pinia-plugin-persistedstate/nuxt": "^1.1.1",
         "html-docx-js-typescript": "^0.1.5",
-        "nuxt": "^3.6.2"
+        "nuxt": "^3.6.5"
     },
     "dependencies": {
         "@pinia/nuxt": "^0.4.11",
@@ -32,17 +32,18 @@
         "html2canvas": "^1.4.1",
         "markdown-it": "^13.0.1",
         "markdown-it-katex": "^2.0.3",
-        "markdown-it-table": "^2.0.4",
+        "markdown-it-table": "^2.0.6",
         "markmap-common": "^0.15.0",
         "markmap-lib": "^0.15.2",
         "markmap-view": "^0.15.0",
         "pinia": "^2.1.4",
         "pinia-plugin-persist": "^1.0.0",
         "qrcode.vue": "^3.4.0",
-        "sass": "^1.63.6",
+        "sass": "^1.64.1",
         "speak-tts": "^2.0.8",
-        "tinymce": "^6.5.1",
+        "tinymce": "^6.6.0",
         "vue-markdown": "^2.2.4",
-        "vue-waterfall-plugin-next": "^2.2.2"
+        "vue-waterfall-plugin-next": "^2.2.2",
+        "vue3-slide-verify": "^1.1.4"
     }
 }

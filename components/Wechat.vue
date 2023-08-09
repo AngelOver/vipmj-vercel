@@ -13,14 +13,7 @@
 
 <script setup lang="ts">
 import {defineProps, ref} from "vue";
-import {
-    IconCode,
-    IconEmail,
-    IconLock,
-    IconMessage,
-    IconMobile,
-    IconUser
-} from "@arco-design/web-vue/es/icon";
+
 const counter = useCounter()
 import QrcodeVue from "qrcode.vue";
 import {useCounter} from "~/store/counter";
@@ -32,6 +25,14 @@ const props = defineProps({
         default: false
     },
 })
+import {
+    IconCode,
+    IconEmail,
+    IconLock,
+    IconMessage,
+    IconMobile,
+    IconUser
+} from "@arco-design/web-vue/es/icon";
 const emit = defineEmits(['handleCancel']) // 定义emit
 const change_wechat = computed({
     get() {

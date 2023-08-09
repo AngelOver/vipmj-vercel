@@ -370,3 +370,37 @@ export const get_carsoul_f = () => {
 export const get_curse = () => {
     return Http.post('api/get_curse')
 }
+
+export const vary_midj_index = (params:any) => {
+    return Http.post('api/vary_midj_index',params)
+}
+
+export const zoom_midj_index = (params:any) => {
+    return Http.post('api/zoom_midj_index',params)
+}
+
+export const get_index_draw = (params:any) => {
+    return Http.post('api/get_index_draw',params)
+}
+
+export const del_draw_nofinish = () => {
+    return Http.post('api/del_draw_nofinish')
+}
+
+export const get_me_show_draw = (params:any) => {
+    return Http.post('api/get_me_show_draw',params)
+}
+export const get_member_id = (params:any) => {
+    return Http.post('api/get_member_id',params)
+}
+
+export const follow_user_api = (params:any) => {
+    return Http.post('api/follow_user_api',params)
+}
+
+export const generate_cap = (params:any) => {
+    return Http.post('api/generate_cap',params)
+}
+export const add_chat = () => {
+    return Http.post('api/add_chat')
+}

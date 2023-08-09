@@ -19,9 +19,10 @@
                                       </span>
                 </template>
             </a-modal>
+
         <div class="w-100 dialog_login">
             <!--login-->
-            <div v-if="is_login_card" class="card login_card border-0">
+            <div v-if="is_login_card && reg_way!=4" class="card login_card border-0">
                 <div class="card-body">
                     <img src="@/assets/images/safe_login.png" alt="" class="w-28 m-auto mb-2">
 
@@ -87,7 +88,7 @@
                 </div>
             </div>
             <!--wechat_login-->
-            <div class="card login_card border-0" v-else-if="wx_login_is">
+            <div class="card login_card border-0" v-else-if="wx_login_is || reg_way==4">
                 <div class="card-body">
                     <img src="@/assets/images/wechat.png" alt="" class="m-auto mb-2">
 
@@ -128,7 +129,7 @@
 
                                         </a-input>
                                         <a-button :loading="send_wait" type="primary"
-                                                  @click="send_code()">
+                                                  @click="check_verify('email')">
                                             {{ send_code_text }}
                                         </a-button>
                                     </a-space>
@@ -197,7 +198,7 @@
                                             </template>
 
                                         </a-input>
-                                        <a-button :loading="send_wait" type="primary" @click="send_p_code()">
+                                        <a-button :loading="send_wait" type="primary" @click="check_verify('phone')">
                                             {{ send_code_text }}
                                         </a-button>
                                     </a-space>
@@ -249,6 +250,18 @@
             </div>
 
         </div>
+        <a-modal class="pic_cap" v-model:visible="captcha_v" title="图形验证" :footer="false">
+            <slide-verify
+                :imgs ="imgs"
+                ref="block"
+                slider-text="拖拽滑动"
+                @again="onAgain"
+                @success="onSuccess"
+                @fail="onFail"
+                class="m-auto"
+                @refresh="onRefresh"
+            ></slide-verify>
+        </a-modal>
     </a-modal>
 
 </template>
@@ -266,11 +279,13 @@ import {
 } from "@arco-design/web-vue/es/icon";
 import { useCounter } from '~/store/counter'
 import {Message} from "@arco-design/web-vue";
+// 元素挂载之后才能访问ref
+import SlideVerify, { SlideVerifyInstance } from "vue3-slide-verify";
+import "vue3-slide-verify/dist/style.css";
 const counter = useCounter()
 const is_login_card = ref(true)
 import QrcodeVue from "qrcode.vue";
 const wx_ewm = ref()
-
 const go_regs = () => {
     wx_ewm.value = ''
     is_login_card.value = false
@@ -280,7 +295,77 @@ const go_login = () => {
     wx_login_is.value = false
     is_login_card.value = true
 }
+const msg = ref("");
+const block = ref<SlideVerifyInstance>();
 
+const onAgain = () => {
+    Message.error("检测到非人为操作的哦！ try again");
+    // 刷新
+    block.value?.refresh();
+};
+const captcha_v = ref(false)
+const verify_code = ref('')
+const flesh_type=  ref('email')
+const check_verify = (type:any)=>{
+    flesh_type.value = type
+    if (type =='email'){
+        if (ruleForm.email == '') {
+            Message.error('请填写邮箱')
+            return
+        }
+        generate_cap({
+            type: 'email',
+            email: ruleForm.email
+        }).then((res: any) => {
+            if (res._rawValue.status == 200) {
+                block.value?.refresh();
+                captcha_v.value = true
+                verify_code.value = res._rawValue.data
+            }
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }else{
+        if (TruleForm.phone == '') {
+            Message.error('请填写手机号')
+            return
+        }
+        generate_cap({
+            type: 'phone',
+            phone: TruleForm.phone
+        }).then((res: any) => {
+            if (res._rawValue.status == 200) {
+                block.value?.refresh();
+                captcha_v.value = true
+                verify_code.value = res._rawValue.data
+            }
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }
+}
+const onSuccess = (times: number) => {
+    captcha_v.value = false
+    if (flesh_type.value=='email'){
+        send_code();
+    }else{
+        send_p_code();
+    }
+};
+
+const onFail = () => {
+    Message.error("验证不通过");
+};
+
+const onRefresh = () => {
+    Message.info("刷新图形");
+};
+
+const handleClick = () => {
+    // 刷新
+    block.value?.refresh();
+    msg.value = "";
+};
 const props = defineProps({
     login_dialog: {
         type: Boolean,
@@ -378,7 +463,9 @@ const wechat_login= ()=>{
     })
 }
 const reg_way = ref(counter.setting.register_way?counter.setting.register_way:'1')
-
+if (reg_way.value==4){
+    wechat_login()
+}
 // register send
 
 const ruleFormRef = ref()
@@ -529,7 +616,8 @@ const send_code = () => {
     }
     send_wait.value = true
     send_email({
-        email: ruleForm.email
+        email: ruleForm.email,
+        verify_code: verify_code.value
     }).then((res: any) => {
         if (res._rawValue.status == 200) {
             Message.success(res._rawValue.message)
@@ -552,7 +640,14 @@ const send_code = () => {
         console.log(err)
     })
 }
-
+import cap_1 from '~/assets/images/captcha-1.png'
+import cap_2 from '~/assets/images/captcha.png'
+import cap_3 from '~/assets/images/captcha-2.png'
+const imgs= ref([
+    cap_1,
+    cap_2,
+    cap_3
+])
 const send_p_code = () => {
     if (TruleForm.phone == '') {
         Message.error('请填写手机号')
@@ -560,7 +655,8 @@ const send_p_code = () => {
     }
     send_wait.value = true
     send_phone_code({
-        phone: TruleForm.phone
+        phone: TruleForm.phone,
+        verify_code: verify_code.value
     }).then((res: any) => {
         if (res._rawValue.status == 200) {
             Message.success(res._rawValue.message)

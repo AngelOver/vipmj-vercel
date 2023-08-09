@@ -25,7 +25,7 @@
         </a-modal>
         <div class="web_login">
             <a-row :gutter="20">
-                <a-col span="12">
+                <a-col span="12" class="mb_left_image">
                     <div class="left_image">
 
                         <a-carousel
@@ -56,11 +56,11 @@
                 <a-col span="12">
                     <div class="form_right">
                         <!--login-->
-                        <div v-if="is_login_card" class="card login_card pt-3 border-0">
+                        <div v-if="is_login_card && reg_way!=4" class="card login_card pt-3 border-0">
                             <div class="card-body">
                                 <img src="@/assets/images/safe_login.png" alt="" class="w-28 m-auto mb-2">
 
-                                <p class="text-center mb-6">登录自主用户，开始聊天</p>
+<!--                                <p class="text-center mb-6">登录自主用户，开始聊天</p>-->
 <!--                                <a-form  ref="ruleFormRefLogin" :model="ruleFormLogin" class="demo-ruleForm"-->
 <!--                                         status-icon @submit="submitFormLogin">-->
 <!--                                    <a-form-item :hide-label=true field="email"-->
@@ -91,6 +91,7 @@
 <!--                                        登录-->
 <!--                                    </a-button>-->
 <!--                                </a-form>-->
+
                                 <div class="mt-6" v-if="counter.setting.three_login_open=='1'">
                                     <div class="relative">
                                         <div class="absolute inset-0 flex items-center">
@@ -115,14 +116,14 @@
                                     </div>
                                 </div>
 
-                                <p class="text-center mb-0">还没有账户？
-                                    <span class="link cursor-pointer" @click="go_regs()">注册一个</span>
-                                    .
-                                </p>
+<!--                                <p class="text-center mb-0">还没有账户？-->
+<!--                                    <span class="link cursor-pointer" @click="go_regs()">注册一个</span>-->
+<!--                                    .-->
+<!--                                </p>-->
                             </div>
                         </div>
                         <!--wechat_login-->
-                        <div class="card login_card border-0" v-else-if="wx_login_is">
+                        <div class="card login_card border-0" v-else-if="wx_login_is || reg_way==4">
                             <div class="card-body">
                                 <img src="@/assets/images/wechat.png" alt="" class="m-auto mb-2">
 
@@ -153,20 +154,25 @@
                                                          :hide-asterisk=true
                                                          field="email_code"
                                             >
-                                                <a-space>
-                                                    <a-input  v-model="ruleForm.email_code"
-                                                              placeholder="邮箱验证码">
-                                                        <template #prefix>
-                                                            <icon-code />
-                                                        </template>
+                                                <a-row :gutter="20" class="w-100">
+                                                    <a-col span="18">
+                                                        <a-input  v-model="ruleForm.email_code"
+                                                                  placeholder="邮箱验证码">
+                                                            <template #prefix>
+                                                                <icon-code />
+                                                            </template>
 
 
-                                                    </a-input>
-                                                    <a-button :loading="send_wait" type="primary"
-                                                              @click="send_code()">
-                                                        {{ send_code_text }}
-                                                    </a-button>
-                                                </a-space>
+                                                        </a-input>
+                                                    </a-col>
+                                                    <a-col span="6">
+                                                        <a-button :loading="send_wait" type="primary"
+                                                                  @click="check_verify('email')">
+                                                            {{ send_code_text }}
+                                                        </a-button>
+                                                    </a-col>
+
+                                                </a-row>
 
 
                                             </a-form-item>
@@ -222,21 +228,26 @@
                                             <a-form-item :hide-label=true
                                                          :hide-asterisk=true
                                                          field="phone_code">
-                                                <a-space>
-                                                    <a-input
-                                                        v-model="TruleForm.phone_code"
-                                                        placeholder="请填写您的手机验证码"
-                                                    >
-                                                        <template #prefix>
-                                                            <icon-code />
-                                                        </template>
 
-                                                    </a-input>
-                                                    <a-button :loading="send_wait" type="primary" @click="send_p_code()">
-                                                        {{ send_code_text }}
-                                                    </a-button>
-                                                </a-space>
+                                                <a-row :gutter="20" class="w-100">
+                                                    <a-col span="18">
+                                                        <a-input
+                                                            v-model="TruleForm.phone_code"
+                                                            placeholder="请填写您的手机验证码"
+                                                        >
+                                                            <template #prefix>
+                                                                <icon-code />
+                                                            </template>
 
+                                                        </a-input>
+                                                    </a-col>
+                                                    <a-col span="6">
+                                                        <a-button :loading="send_wait" type="primary" @click="check_verify('phone')">
+                                                            {{ send_code_text }}
+                                                        </a-button>
+                                                    </a-col>
+
+                                                </a-row>
                                             </a-form-item>
                                             <a-form-item :hide-label=true
                                                          :hide-asterisk=true
@@ -292,7 +303,18 @@
         </div>
     </div>
 
-
+    <a-modal class="pic_cap" v-model:visible="captcha_v" title="图形验证" :footer="false">
+        <slide-verify
+            :imgs = "imgs"
+            ref="block"
+            slider-text="拖拽滑动"
+            @again="onAgain"
+            @success="onSuccess"
+            @fail="onFail"
+            class="m-auto"
+            @refresh="onRefresh"
+        ></slide-verify>
+    </a-modal>
 </template>
 
 <script setup lang="ts">
@@ -315,6 +337,9 @@ import {Message} from "@arco-design/web-vue";
 const counter = useCounter()
 const is_login_card = ref(true)
 import QrcodeVue from "qrcode.vue";
+import SlideVerify, {SlideVerifyInstance} from "vue3-slide-verify";
+import "vue3-slide-verify/dist/style.css";
+
 const wx_ewm = ref()
 
 const go_regs = () => {
@@ -326,11 +351,78 @@ const go_login = () => {
     wx_login_is.value = false
     is_login_card.value = true
 }
-
+const msg = ref("");
+const block = ref<SlideVerifyInstance>();
 const handleChange=(value)=>{
     // console.log(value)
 }
+const captcha_v = ref(false)
+const verify_code = ref('')
+const flesh_type=  ref('email')
+const check_verify = (type:any)=>{
+    flesh_type.value = type
+    if (type =='email'){
+        if (ruleForm.email == '') {
+            Message.error('请填写邮箱')
+            return
+        }
+        generate_cap({
+            type: 'email',
+            email: ruleForm.email
+        }).then((res: any) => {
+            if (res._rawValue.status == 200) {
+                block.value?.refresh();
+                captcha_v.value = true
+                verify_code.value = res._rawValue.data
+            }
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }else{
+        if (TruleForm.phone == '') {
+            Message.error('请填写手机号')
+            return
+        }
+        generate_cap({
+            type: 'phone',
+            phone: TruleForm.phone
+        }).then((res: any) => {
+            if (res._rawValue.status == 200) {
+                block.value?.refresh();
+                captcha_v.value = true
+                verify_code.value = res._rawValue.data
+            }
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }
+}
+const onSuccess = (times: number) => {
+    captcha_v.value = false
+    if (flesh_type.value=='email'){
+        send_code();
+    }else{
+        send_p_code();
+    }
+};
+const onAgain = () => {
+    Message.error("检测到非人为操作的哦！ try again");
+    // 刷新
+    block.value?.refresh();
+};
+const onFail = () => {
+    Message.error("验证不通过");
+};
 
+const onRefresh = () => {
+    Message.info("刷新图形");
+};
+
+const handleClick = () => {
+    // 刷新
+    block.value?.refresh();
+    msg.value = "";
+};
 const email = ref('')
 const password = ref('')
 const ruleFormRefLogin = ref()
@@ -408,7 +500,9 @@ const wechat_login= ()=>{
     })
 }
 const reg_way = ref(counter.setting.register_way?counter.setting.register_way:'1')
-
+if (reg_way.value==4){
+    wechat_login()
+}
 // register send
 
 const ruleFormRef = ref()
@@ -470,6 +564,14 @@ const rules = reactive({
 
 
 })
+import cap_1 from '~/assets/images/captcha-1.png'
+import cap_2 from '~/assets/images/captcha.png'
+import cap_3 from '~/assets/images/captcha-2.png'
+const imgs= ref([
+    cap_1,
+    cap_2,
+    cap_3
+])
 const reg_loading = ref(false)
 // EMAIL register
 const submitForm = async ({values, errors}) => {
@@ -560,6 +662,14 @@ const get_carsoul = () => {
         console.log(err)
     })
 }
+const get_config = ()=>{
+    get_nav_config().then((res:any)=>{
+        counter.setting = res._rawValue.data;
+    }).catch((err:any)=>{
+        Message.error(err);
+    })
+}
+get_config()
 onMounted(async () => {
     await nextTick()
     get_carsoul()
@@ -571,7 +681,8 @@ const send_code = () => {
     }
     send_wait.value = true
     send_email({
-        email: ruleForm.email
+        email: ruleForm.email,
+        verify_code: verify_code.value
     }).then((res: any) => {
         if (res._rawValue.status == 200) {
             Message.success(res._rawValue.message)
@@ -602,7 +713,8 @@ const send_p_code = () => {
     }
     send_wait.value = true
     send_phone_code({
-        phone: TruleForm.phone
+        phone: TruleForm.phone,
+        verify_code: verify_code.value
     }).then((res: any) => {
         if (res._rawValue.status == 200) {
             Message.success(res._rawValue.message)

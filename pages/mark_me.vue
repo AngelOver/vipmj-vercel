@@ -226,9 +226,9 @@ import html2canvas from 'html2canvas';
 import fileSaver from 'file-saver';
 import {useCounter} from '~/store/counter'
 import {IconMenuUnfold} from "@arco-design/web-vue/es/icon";
-//definePageMeta({
-//middleware: ['mustlogin']
-//})
+definePageMeta({
+  middleware: ['mustlogin']
+})
 const counter = useCounter()
 useHead({
     title: '思维导图 - '+counter.setting.title,
@@ -354,7 +354,7 @@ const get_user_balance = () => {
         user_balance.value = res._rawValue.data
     })
 }
-//get_user_balance()
+get_user_balance()
 const change_drawer = () => {
     drawer.value = true
 }
